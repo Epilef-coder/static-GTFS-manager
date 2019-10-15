@@ -1,7 +1,9 @@
 # import url handlers
+from handlers import gtfscalendar, gtfscalendardates
 from handlers.config import APIKeys
 from handlers.gtfsagency import *
-from handlers.gtfscalendar import calendar
+from handlers.gtfscalendar import calendar, gtfscalendarlistids, gtfscalendarcurrent,gtfscalendar
+from handlers.gtfscalendardates import gtfscalendardateslistids,gtfscalendardates
 from handlers.gtfsfrequencies import frequencies
 from handlers.gtfsroutes import *
 from handlers.gtfsfares import *
@@ -24,7 +26,7 @@ url_patterns = [
         (r"/API/agency", agency),
         (r"/API/calendar", calendar),
         # TODO: Replace(r"/API/sequence", sequence),
-        (r"/API/trips", trips),
+        # (r"/API/trips", trips),
         (r"/API/stopTimes", stopTimes),
         (r"/API/routeIdList", routeIdList),
         (r"/API/tripIdList", tripIdList),
@@ -67,6 +69,17 @@ url_patterns = [
         (r"/API/gtfs/route/list/id", gtfsrouteslistids),
         (r"/API/gtfs/route/list/idname", gtfsrouteslistidnames),
         (r"/API/gtfs/route/(.*)", gtfsroutes),
+        (r"/API/gtfs/calendar", gtfscalendar),
+        (r"/API/gtfs/calendar/list/id", gtfscalendarlistids),
+        (r"/API/gtfs/calendar/current", gtfscalendarcurrent),
+        (r"/API/gtfs/calendar/(.*)", gtfscalendar),
+        (r"/API/gtfs/calendar_dates", gtfscalendardates),
+        (r"/API/gtfs/calendar_dates/list/id", gtfscalendardateslistids),
+        (r"/API/gtfs/calendar_dates/(.*)", gtfscalendardates),
+        (r"/API/gtfs/trips", gtfstrips),
+        (r"/API/gtfs/trips/list/id", gtfstripslistids),
+        (r"/API/gtfs/trips/route/(.*)", gtfstripsbyroute),
+        (r"/API/gtfs/trips/(.*)", gtfstrips),
         #(r"/API/idList", idList),
         (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
     ]

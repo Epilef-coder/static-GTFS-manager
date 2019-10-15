@@ -59,7 +59,7 @@ var service = new Tabulator("#calendar-table", {
 	addRowPos: "top",
 	movableColumns: true,
 	layout: "fitColumns", //fit columns to width of table (optional)
-	ajaxURL: `${APIpath}tableReadSave?table=calendar`, //ajax URL
+	ajaxURL: `${APIpath}gtfs/calendar`, //ajax URL
 	ajaxLoaderLoading: loaderHTML,
 	footerElement: footerHTMLcalendar,
 	columns:[
@@ -109,7 +109,7 @@ var calendarDates = new Tabulator("#calendar-dates-table", {
 	movableColumns: true,
 	layout:"fitDataFill",
 	footerElement: footerHTMLcalendarDates,
-	ajaxURL: `${APIpath}tableReadSave?table=calendar_dates`, //ajax URL
+	ajaxURL: `${APIpath}gtfs/calendar_dates`, //ajax URL
 	ajaxLoaderLoading: loaderHTML,
 	columns:[
 		{rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30 },
@@ -394,7 +394,7 @@ function saveCalendar() {
 	console.log('sending calendar data to server via POST');
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}tableReadSave?pw=${pw}&table=calendar`);
+	xhr.open('POST', `${APIpath}gtfs/calendar?pw=${pw}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {
@@ -478,7 +478,7 @@ $("#saveCalendarDatesButton").on("click", function(){
 	console.log('sending calendarDates data to server via POST');
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}tableReadSave?pw=${pw}&table=calendar_dates`);
+	xhr.open('POST', `${APIpath}gtfs/calendar_dates?pw=${pw}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {

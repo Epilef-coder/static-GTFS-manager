@@ -5,7 +5,8 @@ import json
 
 from utils.logmessage import logmessage
 from utils.password import decrypt
-from utils.tables import readTableDB,readColumnDB,replaceTableDB
+from utils.tables import readTableDB, readColumnDB, replaceTableDB, readColumnsDB
+
 
 class routes(tornado.web.RequestHandler):
     def get(self):
@@ -123,7 +124,7 @@ class gtfsrouteslistidnames(tornado.web.RequestHandler):
         # /API/gtfs/routes/list/idname
         start = time.time()
         logmessage('\n/API/gtfs/routes/list/idname GET call')
-        columns = ['route_id','agency_name']
+        columns = ['route_id','route_short_name']
         agencyJson = readColumnsDB('routes',columns).to_json(orient='records', force_ascii=False)
         self.write(agencyJson)
         # time check, from https://stackoverflow.com/a/24878413/4355695

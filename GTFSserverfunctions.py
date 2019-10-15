@@ -55,21 +55,6 @@ def csvwriter( array2write, filename, keys=None ):
 	logmessage( 'Created', filename )
 
 
-def sequenceFull(sequenceDBfile, route_id):
-	# 20.4.18 : writing this to pass on shapes data too. in future, change things on JS end and merge the sequenceReadDB function with this.
-	db = tinyDBopen(sequenceDBfile)
-	Item = Query()
-	sequenceItem = db.search(Item['route_id'] == route_id)
-	db.close()
-
-	if sequenceItem == []:
-		return False
-
-	sequenceArray = sequenceItem[0]
-	logmessage('Got the sequence from sequence db file.')
-	return sequenceArray
-
-
 def extractSequencefromGTFS(route_id):
 	# idea: scan for the first trip matching a route_id, in each direction, and get its sequence from stop_times. 
 	# In case it hasn't been provisioned yet in stop_times, will return empty arrays.
@@ -777,11 +762,4 @@ def sequenceDel(column,value):
 		sDb.close();
 
 	return '<br>'.join(content)
-
-def calendarCurrent():
-	calendarDF = readTableDB('calendar')
-	today = float( '{:%Y%m%d}'.format(datetime.datetime.now()) )
-	logmessage(today)
-	calendarDF.end_date = calendarDF.end_date.astype(float)
-	return calendarDF[ calendarDF.end_date >= today ]
 

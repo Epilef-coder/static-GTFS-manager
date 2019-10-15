@@ -469,7 +469,7 @@ function getPythonTrips(route_id) {
 	});
 	let xhr = new XMLHttpRequest();
 	//make API call from with this as get parameter name
-	xhr.open('GET', `${APIpath}trips?route=${route_id}`);
+	xhr.open('GET', `${APIpath}gtfs/trips/route/${route_id}`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
 			console.log(`Loaded trips data for the chosen route from Server API/trips .`);
@@ -798,7 +798,7 @@ function getPythonIDs() {
 	// replacement for getPythonTripIDs(). Apart from tripIDs, fetch all serviceIDs, blockIDs, shapeIDs and bring with relevant adjoining info if any.
 	// since we are mandating that the route have  sequence saved, and 
 	// shorter GET request. from https://api.jquery.com/jQuery.get/
-	var jqxhr = $.get(`${APIpath}tripIdList`, function (data) {
+	var jqxhr = $.get(`${APIpath}gtfs/trips/list/id`, function (data) {
 		trip_id_list = JSON.parse(data);
 		console.log('All trip ids list loaded after GET request to API/tripIdList.');
 	})
@@ -877,19 +877,17 @@ function populateStopTimesFromSequence(trip_id, direction_id) {
 function getPythonCalendar() {
 	let xhr = new XMLHttpRequest();
 	//make API call from with this as get parameter name
-	xhr.open('GET', `${APIpath}calendar?current=y`);
+	xhr.open('GET', `${APIpath}gtfs/calendar/current`);
 	// &current=y : exclude expired calendar entries
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
 			console.log(`Loaded data from Server API/calendar .`);
 			var data = JSON.parse(xhr.responseText);
-
 			var dropdown = ''; var selectedFlag = false;
 			data.forEach(function (row) {
 				var start = row['start_date'];
 				var end = row['end_date'];
 				//if(!start || !end) continue; // didn't work
-
 				days = '';
 				days += ((row['monday'] == 1) ? 'M' : '_')
 				days += ((row['tuesday'] == 1) ? 'T' : '_')
