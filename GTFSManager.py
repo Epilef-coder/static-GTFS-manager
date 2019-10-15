@@ -1,46 +1,27 @@
+from utils.gtfsimportexport import backupDB, purgeDB
+from utils.logmessage import logmessage
+from utils.piwiktracking import logUse
+
 print('\n\nstatic GTFS Manager')
 print('Fork it on Github: https://github.com/WRI-Cities/static-GTFS-manager/')
 print('Starting up the program, loading dependencies, please wait...\n\n')
 
 import tornado.web
 import tornado.ioloop
-import json
-import os
-import time, datetime
+
 # import url handlers
-from handlers.config import APIKeys
-from handlers.gtfsagency import *
-from handlers.gtfsroutes import *
-from handlers.gtfsfares import *
-from handlers.gtfsshapes import *
-from handlers.gtfsstops import *
-from handlers.gtfstrips import *
-from handlers.gtfsstoptimes import *
-from handlers.importexport import *
-from handlers.appstats import *
+from urls import url_patterns
 
-
+# Temp has to be a handler that calls this function.
+from utils.tables import sequenceReadDB
+from utils.password import decrypt
 # import all utils from the /utils folder.
-import utils
 
-import xmltodict
 import pandas as pd
-from collections import OrderedDict
-import zipfile, zlib
-from tinydb import TinyDB, Query
-from tinydb.operations import delete
 import webbrowser
-from Cryptodome.PublicKey import RSA #uses pycryptodomex package.. disambiguates from pycrypto, pycryptodome
 import shutil # used in fareChartUpload to fix header if changed
-import pathlib
-from math import sin, cos, sqrt, atan2, radians # for lat-long distance calculations
 # import requests # nope, not needed for now
-from json.decoder import JSONDecodeError # used to catch corrupted DB file when tinyDB loads it.
 import signal, sys # for catching Ctrl+C and exiting gracefully.
-
-import csv
-import io # used in hyd csv import
-import requests, platform # used to log user stats
 
 # setting constants
 from settings import *
@@ -48,11 +29,8 @@ root = os.path.dirname(__file__) # needed for tornado
 
 thisURL = ''
 
-
 # for checking imported ZIP against
 # to do: don't make this a HARD requirement. Simply logmessage about it.
-
-
 
 # create folders if they don't exist
 for folder in [uploadFolder, xmlFolder, logFolder, configFolder, dbFolder, exportFolder]:
@@ -166,43 +144,6 @@ class sequence(tornado.web.RequestHandler):
         # time check, from https://stackoverflow.com/a/24878413/4355695
         end = time.time()
         logmessage("API/sequence POST call took {} seconds.".format(round(end-start,2)))
-
-
-class calendar(tornado.web.RequestHandler):
-    def get(self):
-        # API/calendar?current=y
-        start = time.time() # time check
-        logmessage('\ncalendar GET call')
-        current = self.get_argument('current',default='')
-
-        if current.lower() == 'y':
-            calendarJson = calendarCurrent().to_json(orient='records', force_ascii=False)
-        else:
-            calendarJson = readTableDB('calendar').to_json(orient='records', force_ascii=False)
-        self.write(calendarJson)
-        # time check, from https://stackoverflow.com/a/24878413/4355695
-        end = time.time()
-        logmessage("calendar GET call took {} seconds.".format(round(end-start,2)))
-
-    def post(self):
-        # API/calendar?pw=${pw}
-        start = time.time() # time check
-        logmessage('\ncalendar POST call')
-        pw = self.get_argument('pw',default='')
-        if not decrypt(pw):
-            self.set_status(400)
-            self.write("Error: invalid password.")
-            return
-        # received text comes as bytestring. Convert to unicode using .decode('UTF-8') from https://stackoverflow.com/a/6273618/4355695
-        calendarData = json.loads( self.request.body.decode('UTF-8') )
-
-        #csvwriter(calendarData,'calendar.txt')
-        replaceTableDB('calendar', calendarData)
-
-        self.write('Saved Calendar data to DB.')
-        # time check, from https://stackoverflow.com/a/24878413/4355695
-        end = time.time()
-        logmessage("calendar POST call took {} seconds.".format(round(end-start,2)))
 
 
 class serviceIds(tornado.web.RequestHandler):
@@ -625,173 +566,9 @@ class hydGTFS(tornado.web.RequestHandler):
         end = time.time()
         logmessage("hydGTFS POST call took {} seconds.".format(round(end-start,2)))
 
-class frequencies(tornado.web.RequestHandler):
-    def get(self):
-        # ${APIpath}frequencies
-        start = time.time()
-        logmessage('\nfrequencies GET call')
-
-        freqJson = readTableDB('frequencies').to_json(orient='records', force_ascii=False)
-        self.write(freqJson)
-        end = time.time()
-        logmessage("frequences GET call took {} seconds.".format(round(end-start,2)))
-
-    def post(self):
-        # ${APIpath}frequencies
-        start = time.time()
-        logmessage('\nfrequencies POST call')
-        pw=self.get_argument('pw',default='')
-        if not decrypt(pw):
-            self.set_status(400)
-            self.write("Error: invalid password.")
-            return
-        # received text comes as bytestring. Convert to unicode using .decode('UTF-8') from https://stackoverflow.com/a/6273618/4355695
-        data = json.loads( self.request.body.decode('UTF-8') )
-
-        if replaceTableDB('frequencies', data): #replaceTableDB(tablename, data)
-            self.write('Saved frequencies data to DB.')
-        else:
-            self.set_status(400)
-            self.write("Error: Could not save to DB.")
-        end = time.time()
-        logmessage("frequencies POST call took {} seconds.".format(round(end-start,2)))
-
-class tableReadSave(tornado.web.RequestHandler):
-    def get(self):
-        # ${APIpath}tableReadSave?table=table&key=key&value=value
-        start = time.time()
-
-        table=self.get_argument('table',default='')
-        logmessage('\ntableReadSave GET call for table={}'.format(table))
-
-        if not table:
-            self.set_status(400)
-            self.write("Error: invalid table.")
-            return
-
-        key=self.get_argument('key',default=None)
-        value=self.get_argument('value',default=None)
-        if key and value:
-            dataJson = readTableDB(table, key=key, value=value).to_json(orient='records', force_ascii=False)
-        else:
-            dataJson = readTableDB(table).to_json(orient='records', force_ascii=False)
-
-        self.write(dataJson)
-        end = time.time()
-        logUse('{}_read'.format(table))
-        logmessage("tableReadSave GET call for table={} took {} seconds.".format(table,round(end-start,2)))
-
-    def post(self):
-        # ${APIpath}tableReadSave?pw=pw&table=table&key=key&value=value
-        start = time.time()
-        pw=self.get_argument('pw',default='')
-        if not decrypt(pw):
-            self.set_status(400)
-            self.write("Error: invalid password.")
-            return
-
-        table=self.get_argument('table',default='')
-        if not table:
-            self.set_status(400)
-            self.write("Error: invalid table.")
-            return
-
-        logmessage('\ntableReadSave POST call for table={}'.format(table))
-
-        # received text comes as bytestring. Convert to unicode using .decode('UTF-8') from https://stackoverflow.com/a/6273618/4355695
-        data = json.loads( self.request.body.decode('UTF-8') )
-
-        key = self.get_argument('key',default=None)
-        value = self.get_argument('value',default=None)
-        if key and value:
-            status = replaceTableDB(table, data, key, value)
-        else:
-            status = replaceTableDB(table, data)
-
-        if status:
-            self.write('Saved {} data to DB.'.format(table) )
-        else:
-            self.set_status(400)
-            self.write("Error: Could not save to DB.")
-        end = time.time()
-        logUse('{}_write'.format(table))
-        logmessage("tableReadSave POST call for table={} took {} seconds.".format(table,round(end-start,2)))
-
-class tableColumn(tornado.web.RequestHandler):
-    def get(self):
-        # API/tableColumn?table=table&column=column&key=key&value=value
-        start = time.time()
-        logmessage('\nrouteIdList GET call')
-
-        table=self.get_argument('table',default='')
-        column=self.get_argument('column',default='')
-        logmessage('\ntableColumn GET call for table={}, column={}'.format(table,column))
-
-        if (not table) or (not column) :
-            self.set_status(400)
-            self.write("Error: invalid table or column given.")
-            return
-
-        key=self.get_argument('key',default=None)
-        value=self.get_argument('value',default=None)
-
-        if key and value:
-            returnList = readColumnDB(table, column, key=key, value=value)
-        else:
-            returnList = readColumnDB(table, column)
-
-        returnList.sort()
-        self.write(json.dumps(returnList))
-        end = time.time()
-        logUse('{}_column'.format(table))
-        logmessage("tableColumn GET call took {} seconds.".format(round(end-start,2)))
-
 
 def make_app():
-    return tornado.web.Application([
-        #(r"/API/data", APIHandler),
-        (r"/API/allStops", allStops),
-        (r"/API/allStopsKeyed", allStopsKeyed),
-        (r"/API/routes", routes),
-        (r"/API/fareAttributes", fareAttributes),
-        (r"/API/fareRulesPivoted", fareRulesPivoted),
-        (r"/API/fareRules", fareRules),
-        (r"/API/agency", agency),
-        (r"/API/calendar", calendar),
-        (r"/API/sequence", sequence),
-        (r"/API/trips", trips),
-        (r"/API/stopTimes", stopTimes),
-        (r"/API/routeIdList", routeIdList),
-        (r"/API/tripIdList", tripIdList),
-        (r"/API/serviceIds", serviceIds),
-        (r"/API/stats", stats),
-        (r"/API/commitExport", commitExport),
-        (r"/API/pastCommits", pastCommits),
-        (r"/API/gtfsImportZip", gtfsImportZip),
-        (r"/API/XMLUpload", XMLUpload),
-        (r"/API/XMLDiagnose", XMLDiagnose),
-        (r"/API/stations", stations),
-        (r"/API/fareChartUpload", fareChartUpload),
-        (r"/API/xml2GTFS", xml2GTFS),
-        (r"/API/gtfsBlankSlate", gtfsBlankSlate),
-        (r"/API/translations", translations),
-        (r"/API/shapesList", shapesList),
-        (r"/API/allShapesList", allShapesList),
-        (r"/API/shape", shape),
-        (r"/API/listAll", listAll),
-        (r"/API/zoneIdList", zoneIdList),
-        (r"/API/diagnoseID", diagnoseID),
-        (r"/API/deleteByKey", deleteByKey),
-        (r"/API/replaceID", replaceID),
-        (r"/API/hydGTFS", hydGTFS),
-        (r"/API/frequencies", frequencies),
-        (r"/API/tableReadSave", tableReadSave),
-        (r"/API/tableColumn", tableColumn),
-        (r"/API/Config/ApiKeys", APIKeys),
-        (r"/API/gtfs/shapes", gtfsshape),
-        #(r"/API/idList", idList),
-        (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
-    ])
+    return tornado.web.Application(url_patterns)
 
 # for catching Ctrl+C and exiting gracefully. From https://nattster.wordpress.com/2013/06/05/catch-kill-signal-in-python/
 def signal_term_handler(signal, frame):

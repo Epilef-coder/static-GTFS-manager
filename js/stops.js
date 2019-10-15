@@ -38,7 +38,7 @@ var table = new Tabulator("#stops-table", {
 	index: "stop_id",
 	history: true,
 	addRowPos: "top",
-	ajaxURL: APIpath + 'tableReadSave?table=stops', //ajax URL
+	ajaxURL: APIpath + 'gtfs/stop', //ajax URL
 	ajaxLoaderLoading: loaderHTML,
 	clipboard: true,
 	footerElement: footerHTML,
@@ -771,7 +771,7 @@ function saveStops() {
 	console.log('sending stops table data to server via POST.');
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}tableReadSave?table=stops&pw=${pw}`);
+	xhr.open('POST', `${APIpath}gtfs/stop?pw=${pw}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {

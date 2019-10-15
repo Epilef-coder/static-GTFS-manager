@@ -1,13 +1,19 @@
+import time
+
+import tornado.web
 from tinydb import TinyDB, Query
-from tinydb.operations import delete
 from utils.logmessage import logmessage
+from utils.password import decrypt
 
 from settings import *
 
 import pandas as pd
 import numpy as np
-import gc # garbage collector, from https://stackoverflow.com/a/1316793/4355695
-import os,json
+import gc  # garbage collector, from https://stackoverflow.com/a/1316793/4355695
+import os, json
+
+from utils.piwiktracking import logUse
+
 
 def readTableDB(tablename, key=None, value=None):
     '''
@@ -368,72 +374,201 @@ def readChunkTableDB(tablename, key, value):
         return pd.DataFrame()
 
 
+def readColumnsDB(tablename, columns):
+    # This function will allow you to read multiple columns from a file. You have to input a array into the columsn parameter
+    # TODO: Fix the chunking part
+    returnList = []
+    # check if chunking:
+    if tablename not in chunkRules.keys():
+        # Not chunking
+        df = readTableDB(tablename)
+        if len(df):
+            returnList = df[columns]
+            # if column in df.columns:
+            #     returnList = df[column].replace('', np.nan).dropna().unique().tolist()
+            # else:
+            #     logmessage('readColumnDB: Hey, the column {} doesn\'t exist in the table {} for {}={}' \
+            #                .format(column, tablename, key, value))
+        del df
+
+    else:
+        # Yes chunking
+        # to do:
+        # if the column seeked is the same as the primary key of the chunk, then just get that list from the json.
+        # but if the column is something else, then load that chunk and get the column.
+
+        if column == chunkRules[tablename]['key']:
+            lookupJSONFile = chunkRules[tablename]['lookup']
+            # check if file exists.
+            if not os.path.exists(dbFolder + lookupJSONFile):
+                print('readColumnDB: HEY! {} does\'t exist! Returning [].'.format(lookupJSONFile))
+            else:
+                with open(dbFolder + lookupJSONFile) as f:
+                    table_lookup = json.load(f)
+                returnList = list(table_lookup.keys())
+        # so now we have the ids list taken from the lookup json itself, no need to open .h5 files.
+
+        else:
+            if key == chunkRules[tablename]['key']:
+                df = readTableDB(tablename)
+            else:
+                if debugMode: logmessage(
+                    'readColumnDB: Note: reading a chunked table {} by non-primary key {}. May take time.' \
+                        .format(tablename, key))
+                df = readChunkTableDB(tablename)
+
+            if column in df.columns:
+                # in a chunked file, give the values as-is, don't do any unique'ing business.
+                returnList = df[column].tolist()
+            else:
+                logmessage('readColumnDB: Hey, the column {} doesn\'t exist in the chunked table {} for {}={}' \
+                           .format(column, tablename, key, value))
+            del df
+
+    gc.collect()
+    return returnList
+
+
 def readColumnDB(tablename, column, key=None, value=None):
-	returnList = []
-	# check if chunking:
-	if tablename not in chunkRules.keys():
-		# Not chunking
-		df = readTableDB(tablename, key, value)
-		if len(df):
-			if column in df.columns:
-				returnList = df[column].replace('', np.nan).dropna().unique().tolist()
-			else:
-				logmessage('readColumnDB: Hey, the column {} doesn\'t exist in the table {} for {}={}'\
-						.format(column,tablename,key,value))
-		del df
+    # This function will read only one column of a file.
+    returnList = []
+    # check if chunking:
+    if tablename not in chunkRules.keys():
+        # Not chunking
+        df = readTableDB(tablename, key, value)
+        if len(df):
+            if column in df.columns:
+                returnList = df[column].replace('', np.nan).dropna().unique().tolist()
+            else:
+                logmessage('readColumnDB: Hey, the column {} doesn\'t exist in the table {} for {}={}' \
+                           .format(column, tablename, key, value))
+        del df
 
-	else:
-		# Yes chunking
-		# to do:
-		# if the column seeked is the same as the primary key of the chunk, then just get that list from the json.
-		# but if the column is something else, then load that chunk and get the column.
+    else:
+        # Yes chunking
+        # to do:
+        # if the column seeked is the same as the primary key of the chunk, then just get that list from the json.
+        # but if the column is something else, then load that chunk and get the column.
 
-		if column == chunkRules[tablename]['key']:
-			lookupJSONFile = chunkRules[tablename]['lookup']
-			# check if file exists.
-			if not os.path.exists(dbFolder + lookupJSONFile):
-				print('readColumnDB: HEY! {} does\'t exist! Returning [].'.format(lookupJSONFile))
-			else:
-				with open(dbFolder + lookupJSONFile) as f:
-					table_lookup = json.load(f)
-				returnList = list( table_lookup.keys() )
-			# so now we have the ids list taken from the lookup json itself, no need to open .h5 files.
+        if column == chunkRules[tablename]['key']:
+            lookupJSONFile = chunkRules[tablename]['lookup']
+            # check if file exists.
+            if not os.path.exists(dbFolder + lookupJSONFile):
+                print('readColumnDB: HEY! {} does\'t exist! Returning [].'.format(lookupJSONFile))
+            else:
+                with open(dbFolder + lookupJSONFile) as f:
+                    table_lookup = json.load(f)
+                returnList = list(table_lookup.keys())
+        # so now we have the ids list taken from the lookup json itself, no need to open .h5 files.
 
-		else:
-			if key == chunkRules[tablename]['key']:
-				df = readTableDB(tablename, key=key, value=value)
-			else:
-				if debugMode: logmessage('readColumnDB: Note: reading a chunked table {} by non-primary key {}. May take time.'\
-					.format(tablename,key))
-				df = readChunkTableDB(tablename, key=key, value=value)
+        else:
+            if key == chunkRules[tablename]['key']:
+                df = readTableDB(tablename, key=key, value=value)
+            else:
+                if debugMode: logmessage(
+                    'readColumnDB: Note: reading a chunked table {} by non-primary key {}. May take time.' \
+                        .format(tablename, key))
+                df = readChunkTableDB(tablename, key=key, value=value)
 
-			if column in df.columns:
-				# in a chunked file, give the values as-is, don't do any unique'ing business.
-				returnList = df[column].tolist()
-			else:
-				logmessage('readColumnDB: Hey, the column {} doesn\'t exist in the chunked table {} for {}={}'\
-					.format(column,tablename,key,value))
-			del df
+            if column in df.columns:
+                # in a chunked file, give the values as-is, don't do any unique'ing business.
+                returnList = df[column].tolist()
+            else:
+                logmessage('readColumnDB: Hey, the column {} doesn\'t exist in the chunked table {} for {}={}' \
+                           .format(column, tablename, key, value))
+            del df
 
-	gc.collect()
-	return returnList
+    gc.collect()
+    return returnList
 
 
-def purgeDB():
-	# purging existing .h5 files in dbFolder
-	for filename in os.listdir(dbFolder):
-		if filename.endswith('.h5'):
-			os.unlink(dbFolder + filename)
-	logmessage('Removed .h5 files from ' + dbFolder)
+class tableReadSave(tornado.web.RequestHandler):
+    def get(self):
+        # ${APIpath}tableReadSave?table=table&key=key&value=value
+        start = time.time()
 
-	# purge lookup files of chunked files too
-	for filename in os.listdir(dbFolder):
-		if filename.endswith('.json'):
-			os.unlink(dbFolder + filename)
-	logmessage('Removed .json files from ' + dbFolder)
+        table = self.get_argument('table', default='')
+        logmessage('\ntableReadSave GET call for table={}'.format(table))
 
-	# also purge sequenceDB
-	db2 = TinyDB(sequenceDBfile, sort_keys=True, indent=2)
-	db2.purge_tables() # wipe out the database, clean slate.
-	logmessage(sequenceDBfile + ' purged.')
-	db2.close()
+        if not table:
+            self.set_status(400)
+            self.write("Error: invalid table.")
+            return
+
+        key = self.get_argument('key', default=None)
+        value = self.get_argument('value', default=None)
+        if key and value:
+            dataJson = readTableDB(table, key=key, value=value).to_json(orient='records', force_ascii=False)
+        else:
+            dataJson = readTableDB(table).to_json(orient='records', force_ascii=False)
+
+        self.write(dataJson)
+        end = time.time()
+        logUse('{}_read'.format(table))
+        logmessage("tableReadSave GET call for table={} took {} seconds.".format(table, round(end - start, 2)))
+
+    def post(self):
+        # ${APIpath}tableReadSave?pw=pw&table=table&key=key&value=value
+        start = time.time()
+        pw = self.get_argument('pw', default='')
+        if not decrypt(pw):
+            self.set_status(400)
+            self.write("Error: invalid password.")
+            return
+
+        table = self.get_argument('table', default='')
+        if not table:
+            self.set_status(400)
+            self.write("Error: invalid table.")
+            return
+
+        logmessage('\ntableReadSave POST call for table={}'.format(table))
+
+        # received text comes as bytestring. Convert to unicode using .decode('UTF-8') from https://stackoverflow.com/a/6273618/4355695
+        data = json.loads(self.request.body.decode('UTF-8'))
+
+        key = self.get_argument('key', default=None)
+        value = self.get_argument('value', default=None)
+        if key and value:
+            status = replaceTableDB(table, data, key, value)
+        else:
+            status = replaceTableDB(table, data)
+
+        if status:
+            self.write('Saved {} data to DB.'.format(table))
+        else:
+            self.set_status(400)
+            self.write("Error: Could not save to DB.")
+        end = time.time()
+        logUse('{}_write'.format(table))
+        logmessage("tableReadSave POST call for table={} took {} seconds.".format(table, round(end - start, 2)))
+
+
+class tableColumn(tornado.web.RequestHandler):
+    def get(self):
+        # API/tableColumn?table=table&column=column&key=key&value=value
+        start = time.time()
+        logmessage('\nrouteIdList GET call')
+
+        table = self.get_argument('table', default='')
+        column = self.get_argument('column', default='')
+        logmessage('\ntableColumn GET call for table={}, column={}'.format(table, column))
+
+        if (not table) or (not column):
+            self.set_status(400)
+            self.write("Error: invalid table or column given.")
+            return
+
+        key = self.get_argument('key', default=None)
+        value = self.get_argument('value', default=None)
+
+        if key and value:
+            returnList = readColumnDB(table, column, key=key, value=value)
+        else:
+            returnList = readColumnDB(table, column)
+
+        returnList.sort()
+        self.write(json.dumps(returnList))
+        end = time.time()
+        logUse('{}_column'.format(table))
+        logmessage("tableColumn GET call took {} seconds.".format(round(end - start, 2)))

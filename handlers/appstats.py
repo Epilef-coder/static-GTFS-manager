@@ -23,18 +23,18 @@ class stats(tornado.web.RequestHandler):
 
 def GTFSstats():
     '''
-	Gives current stats of the GTFS tables held in DB
-	Enlists:
-		- agency name(s).
-		- mandatory GTFS tables
-		- optional GTFS tables
-		- extra tables present in feed but not part of traditional GTFS spec (only mentioned if present)
+    Gives current stats of the GTFS tables held in DB
+    Enlists:
+        - agency name(s).
+        - mandatory GTFS tables
+        - optional GTFS tables
+        - extra tables present in feed but not part of traditional GTFS spec (only mentioned if present)
 
-	- List number of entries in each
-	- Pad to have tabular like view
-	- Format numbers to have thousands separators
-	- If there are excess agencies, mention only first two and then put number of remaining
-	'''
+    - List number of entries in each
+    - Pad to have tabular like view
+    - Format numbers to have thousands separators
+    - If there are excess agencies, mention only first two and then put number of remaining
+    '''
     content = '';
 
     agencyDF = readTableDB('agency')

@@ -1,8 +1,13 @@
 import tornado.web
 import tornado.ioloop
+import gc # garbage collector, from https://stackoverflow.com/a/1316793/4355695
+from tinydb import TinyDB, Query
+from tinydb.operations import delete
 import time
+import json
 
 from utils.logmessage import logmessage
+from utils.tables import readTableDB,readColumnDB,replaceTableDB
 
 class shapesList(tornado.web.RequestHandler):
     def get(self):
@@ -190,3 +195,17 @@ class allShapesList(tornado.web.RequestHandler):
         # time check, from https://stackoverflow.com/a/24878413/4355695
         end = time.time()
         logmessage("allShapesList GET call took {} seconds.".format(round(end-start,2)))
+
+
+def allShapesListFunc():
+	shapeIDsJson = {}
+
+	shapeIDsJson['all'] = readColumnDB('shapes','shape_id')
+
+	db = tinyDBopen(sequenceDBfile)
+	allSequences = db.all()
+	db.close()
+
+	shapeIDsJson['saved'] = { x['route_id']:[ x.get('shape0', ''), x.get('shape1','') ]  for x in allSequences }
+
+	return shapeIDsJson

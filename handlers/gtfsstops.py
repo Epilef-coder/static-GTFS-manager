@@ -1,7 +1,12 @@
+import json
+
 import tornado.web
 import tornado.ioloop
 import time
 from utils.logmessage import logmessage
+from utils.password import decrypt
+from utils.tables import readTableDB, replaceTableDB, readColumnDB, readColumnsDB
+
 
 class allStops(tornado.web.RequestHandler):
     def get(self):
@@ -60,3 +65,71 @@ class allStopsKeyed(tornado.web.RequestHandler):
         # time check, from https://stackoverflow.com/a/24878413/4355695
         end = time.time()
         logmessage("allStopsKeyed GET call took {} seconds.".format(round(end-start,2)))
+
+
+class gtfsstops(tornado.web.RequestHandler):
+    # /API/gtfs/stop AND /API/gtfs/stop/{stop_id}
+    def get(self, stop_id=None):
+        if stop_id:
+            start = time.time()
+            logmessage('\n/API/gtfs/stop/{} GET call'.format(stop_id))
+            stopJson = readTableDB('stops', key='stop_id', value=stop_id).to_json(orient='records', force_ascii=False)
+            self.write(stopJson)
+            # time check, from https://stackoverflow.com/a/24878413/4355695
+            end = time.time()
+            logmessage("/API/gtfs/stop/{} GET call took {} seconds.".format(stop_id, round(end - start, 2)))
+        else:
+            start = time.time()
+            logmessage('\n/API/gtfs/stop GET call')
+            agencyJson = readTableDB('stops').to_json(orient='records', force_ascii=False)
+            self.write(agencyJson)
+            # time check, from https://stackoverflow.com/a/24878413/4355695
+            end = time.time()
+            logmessage("/API/gtfs/stop GET call took {} seconds.".format(round(end - start, 2)))
+
+    def post(self):
+        # /API/gtfs/stop AND /API/gtfs/stop/{Agency_id}
+        if self.request.body:
+            start = time.time()
+            logmessage('\n/API/gtfs/stop POST call')
+            pw = self.get_argument('pw', default='')
+            if not decrypt(pw):
+                self.set_status(400)
+                self.write("Error: invalid password.")
+                return
+            # received text comes as bytestring. Convert to unicode using .decode('UTF-8') from https://stackoverflow.com/a/6273618/4355695
+            data = json.loads(self.request.body.decode('UTF-8'))
+
+            if replaceTableDB('stops', data):  # replaceTableDB(tablename, data)
+                self.write('Saved stops data to DB.')
+            # time check, from https://stackoverflow.com/a/24878413/4355695
+            end = time.time()
+            logmessage("/API/gtfs/agency POST call took {} seconds.".format(round(end - start, 2)))
+        else:
+            self.write("Error: Saving table data")
+
+class gtfsstopslistids(tornado.web.RequestHandler):
+    def get(self):
+        # /API/gtfs/stop/list/id
+        start = time.time()
+        logmessage('\n/API/gtfs/stop/list/id GET call')
+        listCollector = set()
+        listCollector.update(readColumnDB('stops', 'stop_id'))
+        # to do: find out why this function is only looking at stops table
+        List = list(listCollector)
+        List.sort()
+        self.write(json.dumps(List))
+        end = time.time()
+        logmessage("\n/API/gtfs/stop/list/id GET call took {} seconds.".format(round(end - start, 2)))
+
+class gtfsstoplistidnames(tornado.web.RequestHandler):
+    def get(self):
+        # /API/gtfs/agency/list/idname
+        start = time.time()
+        logmessage('\n/API/gtfs/stop/list/idname GET call')
+        columns = ['stop_id','stop_name']
+        agencyJson = readColumnsDB('stops',columns).to_json(orient='records', force_ascii=False)
+        self.write(agencyJson)
+        # time check, from https://stackoverflow.com/a/24878413/4355695
+        end = time.time()
+        logmessage("/API/gtfs/stop/list/idname GET call took {} seconds.".format(round(end - start, 2)))

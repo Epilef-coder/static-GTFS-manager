@@ -21,7 +21,7 @@ var table = new Tabulator("#agency-table", {
 	addRowPos: "top",
 	movableColumns: true,
 	layout: "fitColumns",
-	ajaxURL: `${APIpath}tableReadSave?table=agency`, //ajax URL
+	ajaxURL: `${APIpath}gtfs/agency`, //ajax URL
 	ajaxLoaderLoading: loaderHTML,
 	placeholder: "No Data Available",
 	footerElement: footerHTML,
@@ -190,7 +190,7 @@ function saveAgency() {
 	console.log('sending to server via POST');
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}tableReadSave?pw=${pw}&table=agency`);
+	xhr.open('POST', `${APIpath}gtfs/agency?pw=${pw}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {

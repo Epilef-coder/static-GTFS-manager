@@ -29,7 +29,7 @@ var table = new Tabulator("#routes-table", {
 	addRowPos: "top",
 	movableColumns: true,
 	layout: "fitColumns", //fit columns to width of table (optional)
-	ajaxURL: APIpath + 'tableReadSave?table=routes', //ajax URL
+	ajaxURL: APIpath + 'gtfs/route', //ajax URL
 	ajaxLoaderLoading: loaderHTML,
 	footerElement: footerHTML,
 	columns:[
@@ -180,7 +180,7 @@ function saveRoutes() {
 	console.log('sending routes table data to server API/saveRoutes via POST.');
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}tableReadSave?pw=${pw}&table=routes`);
+	xhr.open('POST', `${APIpath}gtfs/route?pw=${pw}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {
@@ -218,7 +218,7 @@ function getPythonAgency() {
 	// for routes table, set a function for picking agency.
 	let xhr = new XMLHttpRequest();
 	//make API call from with this as get parameter name
-	xhr.open('GET', `${APIpath}agency`);
+	xhr.open('GET', `${APIpath}gtfs/agency/list/idname`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
 			console.log(`Loaded agency data from Server API/agency .`);
