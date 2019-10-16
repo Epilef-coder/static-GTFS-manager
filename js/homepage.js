@@ -174,7 +174,7 @@ function gtfsImportZip() {
 	formData.append('gtfsZipFile', $('#gtfsZipFile')[0].files[0] );
 
 	$.ajax({
-		url : `${APIpath}gtfsImportZip?pw=${pw}`,
+		url : `${APIpath}app/database/gtfs/import?pw=${pw}`,
 		type : 'POST',
 		data : formData,
 		cache: false,
@@ -194,7 +194,7 @@ function gtfsImportZip() {
 			getPythonPastCommits();
 		},
 		error: function(jqXHR, exception) {
-			console.log('API/gtfsImportZip POST request failed.');
+			console.log('app/database/gtfs/import POST request failed.');
 			$.toast({
 				title: 'GTFS Import',
 				subtitle: 'Failed',
@@ -219,7 +219,7 @@ function gtfsBlankSlate() {
 	  });	
 
 	$.ajax({
-		url : `${APIpath}gtfsBlankSlate?pw=${pw}`,
+		url : `${APIpath}app/database/blank?pw=${pw}`,
 		type : 'GET',
 		cache: false,
 		processData: false,  // tell jQuery not to process the data

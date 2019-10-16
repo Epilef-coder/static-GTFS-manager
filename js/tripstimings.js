@@ -162,7 +162,8 @@ var tripsTable = new Tabulator("#trips-table", {
 	rowUpdated:function(row){
 		// The rowUpdated callback is triggered when a row is updated by the updateRow, updateOrAddRow, updateData or updateOrAddData, functions.
 		setSaveTrips(true);
-	}	
+	},
+
 });
 // Tab seletion 
 $('.nav-tabs a[href="#stoptimes"]').on('shown.bs.tab', function (event) {
@@ -172,7 +173,6 @@ $('.nav-tabs a[href="#stoptimes"]').on('shown.bs.tab', function (event) {
 	}
 	else {
 		// Check if a row is selected
-		console.log(tripsTable.getSelectedRows());
 		var selectedRows = tripsTable.getSelectedRows(); //get array of currently selected row components.
 		if (selectedRows.length == 0) {
 			alert('Please select a row in the trips table first');
@@ -190,7 +190,8 @@ $('.nav-tabs a[href="#stoptimes"]').on('shown.bs.tab', function (event) {
 			console.log(route_id);
 			stoptimesTable.clearData();			
 			// loading stoptimings.
-			getPythonStopTimes(trip_id, route_id, direction);
+			stoptimesTable.setData(`${APIpath}gtfs/stoptimes/${trip_id}`);
+			//getPythonStopTimes(trip_id, route_id, direction);
 
 			// Setting table header info
 			$("#StopTimesRoute").val($('#routeSelect').select2('data')[0].text);
@@ -467,14 +468,17 @@ function getPythonTrips(route_id) {
 		type: 'info',
 		delay: 1000
 	});
+    // Let tabulator do the api requests.
+	tripsTable.setData(`${APIpath}gtfs/trips/route/${route_id}`);
+
 	let xhr = new XMLHttpRequest();
 	//make API call from with this as get parameter name
-	xhr.open('GET', `${APIpath}gtfs/trips/route/${route_id}`);
+	xhr.open('GET', `${APIpath}defaultsequence/${route_id}`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
 			console.log(`Loaded trips data for the chosen route from Server API/trips .`);
 			var data = JSON.parse(xhr.responseText);
-			tripsTable.setData(data.trips);
+			//tripsTable.setData(data.trips);
 			$.toast({
 				title: 'Trips',
 				subtitle: 'Loaded',
@@ -488,7 +492,7 @@ function getPythonTrips(route_id) {
 
 			// SEQUENCE:
 			sequenceHolder = data.sequence;
-			
+
 			if (!sequenceHolder) {
 				$("#newTripHTML").hide('slow');
 				$("#shapeApplyHTML").hide('slow');

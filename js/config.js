@@ -89,7 +89,7 @@ $("#SaveApiKeys").click(function () {
 		type: 'info',
 		delay: 1000
 	});
-	var url = 'API/Config/ApiKeys';
+	var url = 'API/app/config';
 	var MapProviders = ConfigMapProvider.getData();
 	var GTFS = { Timezone: $("#GTFSTimezone").val(), Currency: $("#GTFSCurrency").val() }
 	var APP = { WideScreen: true //$("WideScreen").val()

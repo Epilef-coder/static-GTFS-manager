@@ -168,13 +168,13 @@ $('#UploadShapeModal').on('show.bs.modal', function (e) {
 // Functions
 
 function getShapesList() {
-	var jqxhr = $.get(`${APIpath}allShapesList`, function (data) {
+	var jqxhr = $.get(`${APIpath}gtfs/shape/list/id`, function (data) {
 		list = JSON.parse(data);
 		var select2list = [];
-		console.log('GET request to API/tableReadSave for table=feed_info succesfull.');
+		console.log('GET request to API/gtfs/shape/list/id succesfull.');
 		var content = '<option value="">Select a Shape</option>';
 
-		list['all'].forEach(function (row) {
+		list.forEach(function (row) {
 			select2list.push({ id: row, text: row });
 		});
 
@@ -185,13 +185,13 @@ function getShapesList() {
 		});
 	})
 		.fail(function () {
-			console.log('GET request to API/tableReadSave table=feed_info failed.')
+			console.log('GET request to API/gtfs/shape/list/id failed.')
 		});
 }
 
 function loadShape(shape_id) {
 	// shorter GET request. from https://api.jquery.com/jQuery.get/
-	var jqxhr = $.get(`${APIpath}shape?shape=${shape_id}`, function (data) {
+	var jqxhr = $.get(`${APIpath}gtfs/shape/${shape_id}`, function (data) {
 		var shapeArray = JSON.parse(data);
 		console.log('GET request to API/shape succesful.');
 		//shapes_table.setData(shapeArray);
@@ -223,16 +223,16 @@ function drawShape(shapeArray) {
 
 function getPythonRoutes() {
 	let xhr = new XMLHttpRequest();
-	xhr.open('GET', APIpath + `tableReadSave?table=routes`);
+	xhr.open('GET', `${APIpath}gtfs/route/list/idname`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
-			console.log(`GET call to Server API/tableReadSave table=routes succesful.`);
+			console.log(`GET call to Server /API/gtfs/route/list/idname succesful.`);
 			var data = JSON.parse(xhr.responseText);
 			populateRouteSelect(data);
 			globalRoutes = data; // save to global variable; needed for trip addtion
 		}
 		else {
-			console.log('Server request to API/tableReadSave table=routes failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
+			console.log('Server request to /API/gtfs/route/list/idname failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
 		}
 	};
 	xhr.send();
@@ -241,13 +241,8 @@ function getPythonRoutes() {
 function populateRouteSelect(data) {
 
 	var select2items = $.map(data, function (obj) {
-		obj.id = obj.id || obj.route_id; // replace identifier
-		if (obj.route_long_name) {
-			obj.text = obj.text || obj.route_short_name + " - " + obj.route_long_name
-		}
-		else {
-			obj.text = obj.text || obj.route_short_name
-		}
+		obj.id = obj.id || obj.route_id; // replace identifier		
+		obj.text = obj.text || obj.route_short_name		
 		return obj;
 	});
 
@@ -277,11 +272,10 @@ $('#shape_route').on('select2:select', function (e) {
 		});
 		return;
 	}
-	var jqxhr = $.get(`${APIpath}trips?route=${route_id}`, function (data) {
-		var temp = JSON.parse(data);
-		trip_id_list = temp.trips;
+	var jqxhr = $.get(`${APIpath}gtfs/trips/route/${route_id}`, function (data) {
+		var trip_id_list = JSON.parse(data);		
 		var select2Tripsitems = [];
-		console.log('GET request to API/tableColumn table=trips successful.');
+		console.log(`GET request to /API/gtfs/trips/route/${route_id} successful.`);
 		// Clean Trip Options
 		$('#shape_trip').prop('disabled', false);
 		$("#shape_trip").select2('data', null);
@@ -299,32 +293,26 @@ $('#shape_route').on('select2:select', function (e) {
 		});
 	})
 		.fail(function () {
-			console.log('GET request to API/tableColumn table=trips failed.')
+			console.log(`GET request to /API/gtfs/trips/route/${route_id} failed.` )
 		});
 });
 
 $('#shape_trip').on('select2:select', function (e) {
-	$('#shape_direction').prop('disabled', false);
-});
-
-$('#shape_direction').on('change', function (e) {
-	if ($('#shape_direction').val() != '') {
-		var direction = $('#shape_direction').val();
-		var trip_id = $('#shape_trip').val();
-		var route_id = $('#shape_route').val();
-		getPythonStopTimes(trip_id, route_id, direction);
+	if ($('#shape_trip').val() != '') {		
+		var trip_id = $('#shape_trip').val();	
+		getPythonStopTimes(trip_id);
 	}
 });
 
-function getPythonStopTimes(trip_id, route_id, direction) {
+function getPythonStopTimes(trip_id) {
 	let xhr = new XMLHttpRequest();
 	//make API call from with this as get parameter name
-	xhr.open('GET', `${APIpath}stopTimes?trip=${trip_id}&route=${route_id}&direction=${direction}`);
+	xhr.open('GET', `${APIpath}gtfs/stoptimes/${trip_id}`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
 			console.log(`Loaded timings data for the chosen trip from Server API/stopTimes .`);
 			var returndata = JSON.parse(xhr.responseText);
-			if (returndata.newFlag) {
+			if (returndata.length == 0) {
 				$.toast({
 					title: 'Loading stoptimes',
 					subtitle: 'There is no data!',
@@ -335,8 +323,8 @@ function getPythonStopTimes(trip_id, route_id, direction) {
 			}
 			else {
 				stopsLayer.clearLayers();
-				stop_times = returndata.data;
-				returndata.data.forEach(function (stop, index) {
+				stop_times = returndata;
+				returndata.forEach(function (stop, index) {
 					// Cross referencinge stops/					
 					var searchstop = allStops.find(x => x.stop_id === stop.stop_id);
 					if (searchstop) {
@@ -354,10 +342,7 @@ function getPythonStopTimes(trip_id, route_id, direction) {
 							.on('click', function (e) {
 								markerOnClick(e);
 							});
-						//var marker = L.marker([lat, lon]).addTo(map);												
-						//stopmarker.properties = data[j][i]; // transfer all properties of stop row to marker
-						//stopmarker.properties['sequence'] = j; // store which sequence table/map the marker belongs to, within the marker itself via an additional property. So that the value can be passed on in the .on('click') function.
-
+						
 						stopmarker.addTo(stopsLayer);
 					}
 
@@ -374,7 +359,7 @@ function getPythonStopTimes(trip_id, route_id, direction) {
 			}
 		}
 		else {
-			console.log('Server request to API/stopTimes failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText + '\nLoading backup.');
+			console.log(`Server request to ${APIpath}gtfs/stoptimes/${trip_id} failed.  Returned status of ` + xhr.status + ', message: ' + xhr.responseText + '\nLoading backup.');
 			$.toast({
 				title: 'Loading stoptimes',
 				subtitle: 'There is no data!',
@@ -392,15 +377,15 @@ function getPythonStops() {
 	// loading stops.txt data, keyed by stop_id.
 
 	let xhr = new XMLHttpRequest();
-	xhr.open('GET', `API/tableReadSave?table=stops`);
+	xhr.open('GET', `${APIpath}gtfs/stop`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
-			console.log(`Loaded data from Server API/tableReadSave?table=stops .`);
+			console.log(`Loaded data from Server API/gtfs/stop`);
 			var data = JSON.parse(xhr.responseText);
 			allStops = data;
 		}
 		else {
-			console.log('Server request to API/tableReadSave?table=stops failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
+			console.log('Server request to API/gtfs/stop.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
 		}
 	};
 	xhr.send();
@@ -819,7 +804,7 @@ function SaveShape() {
 	console.log('sending to server via POST');
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}gtfs/shapes?pw=${pw}&id=${shape_id}`);
+	xhr.open('POST', `${APIpath}gtfs/shape/${shape_id}?pw=${pw}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {

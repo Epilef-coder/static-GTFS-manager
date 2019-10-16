@@ -7,7 +7,6 @@ import time
 from settings import sequenceDBfile
 from utils.logmessage import logmessage
 from utils.password import decrypt
-from utils.sequence import sequenceFull
 from utils.tables import readTableDB, replaceTableDB, readColumnDB, readColumnsDB
 
 
@@ -29,24 +28,24 @@ class gtfstripsbyroute(tornado.web.RequestHandler):
         # /API/gtfs/trips/route/{route_id}
         if route_id:
             start = time.time()
-            logmessage('\n/API/gtfs/trips/route/ GET call')
+            logmessage('\n/API/gtfs/trips/route/{} GET call'.format(route_id))
             if not len(route_id):
                 self.set_status(400)
                 self.write("Error: invalid route.")
                 return
+            agencyJson = readTableDB('trips', key='route_id', value=route_id).to_json(orient='records', force_ascii=False)
+            # tripsArray = readTableDB('trips', key='route_id', value=route_id).to_dict(orient='records')
+            #
+            # # also read sequence for that route and send.
+            # sequence = sequenceFull(sequenceDBfile, route_id)
+            # # if there is no sequence saved yet, sequence=False which will be caught on JS side to inform the user and disable new trips creation.
+            #
+            # returnJson = {'trips':tripsArray, 'sequence':sequence }
 
-            tripsArray = readTableDB('trips', key='route_id', value=route_id).to_dict(orient='records')
-
-            # also read sequence for that route and send.
-            sequence = sequenceFull(sequenceDBfile, route_id)
-            # if there is no sequence saved yet, sequence=False which will be caught on JS side to inform the user and disable new trips creation.
-
-            returnJson = {'trips':tripsArray, 'sequence':sequence }
-
-            self.write(json.dumps(returnJson))
+            self.write(agencyJson)
             # time check, from https://stackoverflow.com/a/24878413/4355695
             end = time.time()
-            logmessage("/API/gtfs/trips/route/ GET call took {} seconds.".format(round(end-start,2)))
+            logmessage("/API/gtfs/trips/route/{} GET call took {} seconds.".format(route_id, round(end-start,2)))
 
     def post(self):
         start  = time.time() # time check, from https://stackoverflow.com/a/24878413/4355695

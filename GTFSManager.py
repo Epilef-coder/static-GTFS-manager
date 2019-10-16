@@ -1,4 +1,3 @@
-from utils.gtfsimportexport import backupDB, purgeDB
 from utils.logmessage import logmessage
 from utils.piwiktracking import logUse
 
@@ -13,7 +12,6 @@ import tornado.ioloop
 from urls import url_patterns
 
 # Temp has to be a handler that calls this function.
-from utils.tables import sequenceReadDB
 from utils.password import decrypt
 # import all utils from the /utils folder.
 
@@ -61,89 +59,6 @@ class APIHandler(tornado.web.RequestHandler):
         time.sleep(10)
         self.write("Your username is %s and password is %s" % (user, passwd))
 '''
-
-
-class sequence(tornado.web.RequestHandler):
-    def get(self):
-        # API/sequence?route=${route_id}
-        start = time.time()
-        logmessage('\nsequence GET call')
-        route_id = self.get_argument('route',default='')
-
-        if not len(route_id):
-            self.set_status(400)
-            self.write("Error: invalid route.")
-            return
-
-        #to do: first check in sequence db. If not found there, then for first time, scan trips and stop_times to load sequence. And store that sequence in sequence db so that next time we fetch from there.
-
-        sequence = sequenceReadDB(sequenceDBfile, route_id)
-        # read sequence db and return sequence array. If not found in db, return false.
-
-        message = '<span class="alert alert-success">Loaded default sequence for this route from DB.</span>'
-
-        if not sequence:
-            logmessage('sequence not found in sequence DB file, so extracting from gtfs tables instead.')
-            # Picking the first trip instance for each direction of the route.
-            sequence = extractSequencefromGTFS(route_id)
-
-            if sequence == [ [], [] ] :
-                message = '<span class="alert alert-info">This seems to be a new route. Please create a sequence below and save to DB.</span>'
-            else:
-                message = '<span class="alert alert-warning">Loaded a computed sequence from existing trips. Please finalize and save to DB.</span>'
-
-            # we have computed a sequence from the first existing trip's entry in trips and stop_times tables for that route (one sequence for each direction)
-            # Passing it along. Let the user finalize it and consensually save it.
-
-        # so either way, we now have a sequence array.
-
-        returnJson = { 'data':sequence, 'message':message }
-        self.write(json.dumps(returnJson))
-        # time check, from https://stackoverflow.com/a/24878413/4355695
-        end = time.time()
-        logmessage("sequence GET call took {} seconds.".format(round(end-start,2)))
-
-    #using same API endpoint, post request for saving.
-    def post(self):
-        # ${APIpath}sequence?pw=${pw}&route=${selected_route_id}&shape0=${chosenShape0}&shape1=${chosenShape1}
-        start = time.time()
-        logmessage('\nsequence POST call')
-        pw = self.get_argument('pw',default='')
-        if not decrypt(pw):
-            self.set_status(400)
-            self.write("Error: invalid password.")
-            return
-        route_id = self.get_argument('route', default='')
-        shape0 = self.get_argument('shape0', default='')
-        shape1 = self.get_argument('shape1', default='')
-
-        if not len(route_id):
-            self.set_status(400)
-            self.write("Error: invalid route.")
-            return
-
-        # received text comes as bytestring. Convert to unicode using .decode('UTF-8') from https://stackoverflow.com/a/6273618/4355695
-        data = json.loads( self.request.body.decode('UTF-8') )
-
-        '''
-        This is what the data would look like: [
-            ['ALVA','PNCU','CPPY','ATTK','MUTT','KLMT','CCUV','PDPM','EDAP','CGPP','PARV','JLSD','KALR','LSSE','MGRD'],
-            ['MACE','MGRD','LSSE','KALR','JLSD','PARV','CGPP','EDAP','PDPM','CCUV','KLMT','MUTT','ATTK','CPPY','PNCU','ALVA']
-        ];
-        '''
-        # to do: the shape string can be empty. Or one of the shapes might be there and the other might be an empty string. Handle it gracefully.
-        # related to https://github.com/WRI-Cities/static-GTFS-manager/issues/35
-        # and : https://github.com/WRI-Cities/static-GTFS-manager/issues/38
-        shapes = [shape0, shape1]
-
-        if sequenceSaveDB(sequenceDBfile, route_id, data, shapes):
-            self.write('saved sequence to sequence db file.')
-        else:
-            self.set_status(400)
-            self.write("Error, could not save to sequence db for some reason.")
-        # time check, from https://stackoverflow.com/a/24878413/4355695
-        end = time.time()
-        logmessage("API/sequence POST call took {} seconds.".format(round(end-start,2)))
 
 
 class serviceIds(tornado.web.RequestHandler):
@@ -341,31 +256,6 @@ class xml2GTFS(tornado.web.RequestHandler):
         logmessage("xml2GTFS POST call took {} seconds.".format(round(end-start,2)))
         logUse('xml2GTFS')
 
-class gtfsBlankSlate(tornado.web.RequestHandler):
-    def get(self):
-        # API/gtfsBlankSlate?pw=${pw}
-        start = time.time()
-        logmessage('\ngtfsBlankSlate GET call')
-        pw = self.get_argument('pw',default='')
-        if not decrypt(pw):
-            self.set_status(400)
-            self.write("Error: invalid password.")
-            return
-
-        # take backup first, if we're not in debug mode.
-        if not debugMode:
-            backupDB()
-            finalmessage = '<font color=green size=6>&#10004;</font> Took a backup and cleaned out the DB.'
-        else:
-            finalmessage = '<font color=green size=6>&#10004;</font> Cleaned out the DB.'
-
-        # outsourced purging DB to a function
-        purgeDB()
-
-        self.write(finalmessage)
-        end = time.time()
-        logmessage("gtfsBlankSlate GET call took {} seconds.".format(round(end-start,2)))
-        logUse('gtfsBlankSlate')
 
 class translations(tornado.web.RequestHandler):
     def get(self):
@@ -445,23 +335,6 @@ class listAll(tornado.web.RequestHandler):
         self.write(json.dumps(returnJson))
         end = time.time()
         logmessage("listAll GET call took {} seconds.".format(round(end-start,2)))
-
-
-class zoneIdList(tornado.web.RequestHandler):
-    def get(self):
-        # ${APIpath}zoneIdList
-        start = time.time()
-        logmessage('\nzoneIdList GET call')
-
-        zoneCollector = set()
-        zoneCollector.update( readColumnDB('stops','zone_id') )
-        # to do: find out why this function is only looking at stops table
-
-        zoneList = list(zoneCollector)
-        zoneList.sort()
-        self.write(json.dumps(zoneList))
-        end = time.time()
-        logmessage("zoneIdList GET call took {} seconds.".format(round(end-start,2)))
 
 
 class diagnoseID(tornado.web.RequestHandler):

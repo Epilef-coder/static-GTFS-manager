@@ -4,7 +4,7 @@ const VERSION = 'v3.4.3';
 var cfg = {};
 // Pure javascript because jquery is not loaded yet.
 var xmlhttp = new XMLHttpRequest();
-xmlhttp.open('GET', APIpath + 'Config/ApiKeys', true);
+xmlhttp.open('GET', APIpath + 'app/config', true);
 xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == 4) {
         if(xmlhttp.status == 200) {

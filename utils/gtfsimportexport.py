@@ -21,7 +21,7 @@ def importGTFS(zipname):
 
     # unzip imported zip
     # make a separate folder to unzip in, so that when importing we don't end up picking other .txt files that happen to be in the general uploads folder.
-    unzipFolder = uploadFolder + '{:unzip-%H%M%S}/'.format(datetime.now())
+    unzipFolder = uploadFolder + '{:unzip-%H%M%S}/'.format(datetime.datetime.now())
     if not os.path.exists(unzipFolder):
         os.makedirs(unzipFolder)
 

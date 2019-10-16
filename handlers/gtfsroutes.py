@@ -64,18 +64,18 @@ class gtfsroutes(tornado.web.RequestHandler):
             logmessage("/API/gtfs/routes/{} GET call took {} seconds.".format(route_id, round(end - start, 2)))
         else:
             start = time.time()
-            logmessage('\n/API/gtfs/routes GET call')
+            logmessage('\n/API/gtfs/route GET call')
             agencyJson = readTableDB('routes').to_json(orient='records', force_ascii=False)
             self.write(agencyJson)
             # time check, from https://stackoverflow.com/a/24878413/4355695
             end = time.time()
-            logmessage("/API/gtfs/routes GET call took {} seconds.".format(round(end - start, 2)))
+            logmessage("/API/gtfs/route GET call took {} seconds.".format(round(end - start, 2)))
 
     def post(self):
         # /API/gtfs/routes AND /API/gtfs/routes/{route_id}
         if self.request.body:
             start = time.time()
-            logmessage('\n/API/gtfs/routes POST call')
+            logmessage('\n/API/gtfs/route POST call')
             pw = self.get_argument('pw', default='')
             if not decrypt(pw):
                 self.set_status(400)
@@ -88,7 +88,7 @@ class gtfsroutes(tornado.web.RequestHandler):
                 self.write('Saved Agency data to DB.')
             # time check, from https://stackoverflow.com/a/24878413/4355695
             end = time.time()
-            logmessage("/API/gtfs/routes POST call took {} seconds.".format(round(end - start, 2)))
+            logmessage("/API/gtfs/route POST call took {} seconds.".format(round(end - start, 2)))
         else:
             self.write("Error: Saving table data")
 
@@ -109,7 +109,7 @@ class gtfsrouteslistids(tornado.web.RequestHandler):
     def get(self):
         # /API/gtfs/routes/list/id
         start = time.time()
-        logmessage('\n/API/gtfs/routes/list/id GET call')
+        logmessage('\n/API/gtfs/route/list/id GET call')
         listCollector = set()
         listCollector.update(readColumnDB('routes', 'route_id'))
         # to do: find out why this function is only looking at stops table
@@ -117,16 +117,16 @@ class gtfsrouteslistids(tornado.web.RequestHandler):
         List.sort()
         self.write(json.dumps(List))
         end = time.time()
-        logmessage("\n/API/gtfs/routes/list/id GET call took {} seconds.".format(round(end - start, 2)))
+        logmessage("\n/API/gtfs/route/list/id GET call took {} seconds.".format(round(end - start, 2)))
 
 class gtfsrouteslistidnames(tornado.web.RequestHandler):
     def get(self):
-        # /API/gtfs/routes/list/idname
+        # /API/gtfs/route/list/idname
         start = time.time()
-        logmessage('\n/API/gtfs/routes/list/idname GET call')
+        logmessage('\n/API/gtfs/route/list/idname GET call')
         columns = ['route_id','route_short_name']
         agencyJson = readColumnsDB('routes',columns).to_json(orient='records', force_ascii=False)
         self.write(agencyJson)
         # time check, from https://stackoverflow.com/a/24878413/4355695
         end = time.time()
-        logmessage("/API/gtfs/routes/list/idname GET call took {} seconds.".format(round(end - start, 2)))
+        logmessage("/API/gtfs/route/list/idname GET call took {} seconds.".format(round(end - start, 2)))

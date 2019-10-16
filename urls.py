@@ -1,28 +1,34 @@
 # import url handlers
-from handlers import gtfscalendar, gtfscalendardates
-from handlers.config import APIKeys
+
+from handlers.app import AppDatabaseBlank, AppDatabaseGTFSImport, AppConfig
 from handlers.gtfsagency import *
 from handlers.gtfscalendar import calendar, gtfscalendarlistids, gtfscalendarcurrent,gtfscalendar
 from handlers.gtfscalendardates import gtfscalendardateslistids,gtfscalendardates
-from handlers.gtfsfrequencies import frequencies
+from handlers.gtfstranslations import gtfstranlations
+from handlers.gtfsfrequencies import gtfsfrequencies, gtfsfrequencieslistids
 from handlers.gtfsroutes import *
-from handlers.gtfsfares import *
+from handlers.gtfsfarerules import gtfsfarerules, gtfsfareruleslistids, fareRulesPivoted
+from handlers.gtfsfareattributes import gtfsfareattributes, gtfsfareattributeslistids
 from handlers.gtfsshapes import *
 from handlers.gtfsstops import *
 from handlers.gtfstrips import *
 from handlers.gtfsstoptimes import *
 from handlers.importexport import *
 from handlers.appstats import *
+from handlers.sequence import defaultsequence, defaultsequencebyroute
 from utils.tables import tableReadSave, tableColumn
 
 url_patterns = [
         #(r"/API/data", APIHandler),
+        (r"/API/app/config", AppConfig),
+        (r"/API/app/database/blank",AppDatabaseBlank),
+        (r"/API/app/database/gtfs/import",AppDatabaseGTFSImport),
+        #(r"/API/app/database/gtfs/export",AppDatabaseGTFSImport),
         (r"/API/allStops", allStops),
         (r"/API/allStopsKeyed", allStopsKeyed),
         (r"/API/routes", routes),
-        (r"/API/fareAttributes", fareAttributes),
-        (r"/API/fareRulesPivoted", fareRulesPivoted),
-        (r"/API/fareRules", fareRules),
+        #(r"/API/fareAttributes", fareAttributes),
+        #(r"/API/fareRulesPivoted", fareRulesPivoted),
         (r"/API/agency", agency),
         (r"/API/calendar", calendar),
         # TODO: Replace(r"/API/sequence", sequence),
@@ -34,7 +40,7 @@ url_patterns = [
         (r"/API/stats", stats),
         (r"/API/commitExport", commitExport),
         (r"/API/pastCommits", pastCommits),
-        (r"/API/gtfsImportZip", gtfsImportZip),
+        #(r"/API/gtfsImportZip", gtfsImportZip),
         # TODO: Replace(r"/API/XMLUpload", XMLUpload),
         # TODO: Replace(r"/API/XMLDiagnose", XMLDiagnose),
         # TODO: Replace(r"/API/stations", stations),
@@ -51,10 +57,9 @@ url_patterns = [
         # TODO: Replace(r"/API/deleteByKey", deleteByKey),
         # TODO: Replace(r"/API/replaceID", replaceID),
         # TODO: Replace(r"/API/hydGTFS", hydGTFS),
-        (r"/API/frequencies", frequencies),
+        # TODO: RMOVE (r"/API/frequencies", frequencies),
         (r"/API/tableReadSave", tableReadSave),
         (r"/API/tableColumn", tableColumn),
-        (r"/API/Config/ApiKeys", APIKeys),
         (r"/API/gtfs/shapes", gtfsshape),
         # New API Calls
         (r"/API/gtfs/agency", gtfsagency),
@@ -64,6 +69,7 @@ url_patterns = [
         (r"/API/gtfs/stop", gtfsstops),
         (r"/API/gtfs/stop/list/id", gtfsstopslistids),
         (r"/API/gtfs/stop/list/idname", gtfsstoplistidnames),
+        (r"/API/gtfs/stop/list/zoneid", gtfsstoplistzoneid),
         (r"/API/gtfs/stop/(.*)", gtfsstops),
         (r"/API/gtfs/route", gtfsroutes),
         (r"/API/gtfs/route/list/id", gtfsrouteslistids),
@@ -80,6 +86,26 @@ url_patterns = [
         (r"/API/gtfs/trips/list/id", gtfstripslistids),
         (r"/API/gtfs/trips/route/(.*)", gtfstripsbyroute),
         (r"/API/gtfs/trips/(.*)", gtfstrips),
+        (r"/API/gtfs/stoptimes", gtfsstoptimes),
+        (r"/API/gtfs/stoptimes/(.*)", gtfsstoptimes), # Get stoptimes by trip_id
+        (r"/API/gtfs/shape", gtfsshape),
+        (r"/API/gtfs/shape/list/id", gtfsshapelistids),
+        (r"/API/gtfs/shape/list/route/(.*)", gtfsshapeslistbyroute),
+        (r"/API/gtfs/shape/(.*)", gtfsshape),
+        (r"/API/defaultsequence/route/(.*)", defaultsequencebyroute),  # Custom defaultsequence api's
+        (r"/API/defaultsequence/(.*)", defaultsequence),  # Custom defaultsequence api's
+        (r"/API/gtfs/frequencies", gtfsfrequencies),
+        (r"/API/gtfs/frequencies/list/id", gtfsfrequencieslistids),
+        (r"/API/gtfs/frequencies/(.*)", gtfsfrequencies),
+        (r"/API/gtfs/farerules", gtfsfarerules),
+        (r"/API/gtfs/farerules/list/id", gtfsfareruleslistids),
+        (r"/API/gtfs/farerules/pivoted", fareRulesPivoted),
+        (r"/API/gtfs/farerules/(.*)", gtfsfarerules),
+        (r"/API/gtfs/fareattributes", gtfsfareattributes),
+        (r"/API/gtfs/fareattributes/list/id", gtfsfareattributeslistids),
+        (r"/API/gtfs/fareattributes/(.*)", gtfsfareattributes),
+        (r"/API/gtfs/translations", gtfstranlations),
+        (r"/API/gtfs/translations/(.*)", gtfstranlations),
         #(r"/API/idList", idList),
         (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
     ]

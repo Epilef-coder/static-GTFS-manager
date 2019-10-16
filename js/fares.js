@@ -68,8 +68,7 @@ var fareattributes = new Tabulator("#fare-attributes-table", {
 	index: "fare_id",
 	history: true,
 	addRowPos: "top",
-	ajaxURL: APIpath + 'tableReadSave',
-	ajaxParams: { table: "fare_attributes" },
+	ajaxURL: `${APIpath}gtfs/fareattributes`,	
 	ajaxLoaderLoading: loaderHTML,
 	layout: "fitColumns",
 	footerElement: footerHTMLFareAttributes,
@@ -148,7 +147,7 @@ var farerules = new Tabulator("#fare-rules-table", {
 	history: true,
 	addRowPos: "top",
 	placeholder: "There are no rules defined. First create a rule.",
-	ajaxURL: APIpath + 'fareRulesPivoted',
+	ajaxURL: `${APIpath}gtfs/farerules/pivoted`,
 	ajaxLoaderLoading: loaderHTML,
 	layout: "fitColumns",
 	ajaxResponse: function (url, params, response) {
@@ -180,11 +179,11 @@ var farerules = new Tabulator("#fare-rules-table", {
 		return response;
 	},
 	ajaxError: function (xhr, textStatus, errorThrown) {
-		console.log('GET request to tableReadSave?table=fareRulesPivoted failed.  Returned status of: ' + errorThrown);
+		console.log('GET request to /API/gtfs/farerules/pivoted failed.  Returned status of: ' + errorThrown);
 	},
 	dataLoaded: function (data) {
 		//fareattributes.setData();
-		console.log('GET request to tableReadSave?table=fareRulesPivoted successful.');
+		console.log('GET request to /API/gtfs/farerules/pivoted successful.');
 	}
 
 }); // end fare attributes table definition
@@ -197,7 +196,7 @@ var simple = new Tabulator("#fare-rules-simple-table", {
 	//index: "fare_id", // no index on this one
 	history: true,
 	addRowPos: "top",
-	ajaxURL: APIpath + 'tableReadSave?table=fare_rules', //ajax URL
+	ajaxURL: `${APIpath}gtfs/farerules`, //ajax URL
 	ajaxLoaderLoading: loaderHTML,
 	layout: "fitColumns",
 	footerElement: footerHTMLFareRules,
@@ -217,10 +216,10 @@ var simple = new Tabulator("#fare-rules-simple-table", {
 	],
 
 	ajaxError: function (xhr, textStatus, errorThrown) {
-		console.log('GET request to API tableReadSave?table=fare_rules failed.  Returned status of: ' + errorThrown);
+		console.log('GET request to /API/gtfs/farerules failed.  Returned status of: ' + errorThrown);
 	},
 	dataLoaded: function (data) {
-		console.log('GET request to API tableReadSave?table=fare_rules successful.');
+		console.log('GET request to /API/gtfs/farerules successful.');
 		if (data.length > 0) {
 			AddExtraColumns(Object.keys(data[0]), GTFSDefinedColumnsFareRules, simple);
 		}
@@ -512,14 +511,14 @@ function saveFareAttributes() {
 	var datajson = JSON.stringify(data);
 	console.log(data);
 	$.ajax({
-		url: `${APIpath}fareAttributes?pw=${pw}`,
+		url: `${APIpath}gtfs/fareattributes?pw=${pw}`,
 		type: 'POST',
 		data: datajson,
 		cache: false,
 		processData: false,  // tell jQuery not to process the data
 		contentType: 'application/json; charset=utf-8',
 		success: function (returndata) {
-			console.log('API/fareAttributes POST request successfully done.');
+			console.log('API/gtfs/fareattributes POST request successfully done.');
 			$.toast({
 				title: 'Save Fare Attributes',
 				subtitle: 'Saved',
@@ -533,7 +532,7 @@ function saveFareAttributes() {
 			$('#saveFareAttributesButton').prop('disabled', true);
 		},
 		error: function (jqXHR, exception) {
-			console.log('API/fareAttributes POST request failed.');
+			console.log('API/gtfs/fareattributes POST request failed.');
 			$.toast({
 				title: 'Save Fare Attributes',
 				subtitle: 'Error',
@@ -568,14 +567,14 @@ function saveFareRulesPivoted() {
 	var data = JSON.stringify(farerules.getData());
 
 	$.ajax({
-		url: `${APIpath}fareRulesPivoted?pw=${pw}`,
+		url: `${APIpath}gtfs/farerules/pivoted?pw=${pw}`,
 		type: 'POST',
 		data: data,
 		cache: false,
 		processData: false,  // tell jQuery not to process the data
 		contentType: 'application/json; charset=utf-8',
 		success: function (returndata) {
-			console.log('API/fareRulesPivoted POST request successfully done.');
+			console.log('API/gtfs/farerules/pivoted POST request successfully done.');
 			$.toast({
 				title: 'Save Fare Rules  pivoted',
 				subtitle: 'Saving',
@@ -590,7 +589,7 @@ function saveFareRulesPivoted() {
 			simple.redraw(true);
 		},
 		error: function (jqXHR, exception) {
-			console.log('API/fareRulesPivoted POST request failed.');
+			console.log('API/gtfs/farerules/pivoted POST request failed.');
 			$.toast({
 				title: 'Save Fare Rules  pivoted',
 				subtitle: 'Saving',
@@ -625,14 +624,14 @@ function saveFareRulesSimple() {
 	var data = JSON.stringify(simple.getData());
 
 	$.ajax({
-		url: `${APIpath}tableReadSave?table=fare_rules&pw=${pw}`,
+		url: `${APIpath}gtfs/farerules?pw=${pw}`,
 		type: 'POST',
 		data: data,
 		cache: false,
 		processData: false,  // tell jQuery not to process the data
 		contentType: 'application/json; charset=utf-8',
 		success: function (returndata) {
-			console.log('API/tableReadSave?table=fare_rules POST request successfully done.');
+			console.log('API/gtfs/farerules POST request successfully done.');
 			//$('#saveFareRulesSimpleStatus').html('<span class="alert alert-success">' + returndata + '</span>' );
 			$.toast({
 				title: 'Save Fare Rules Simple',
@@ -651,7 +650,7 @@ function saveFareRulesSimple() {
 			$('#saveFareRulesSimpleButton').prop('disabled', true);
 		},
 		error: function (jqXHR, exception) {
-			console.log('API/tableReadSave?table=fare_rules POST request failed.')
+			console.log('API/gtfs/farerules POST request failed.')
 			$('#saveFareRulesSimpleStatus').html('<span class="alert alert-danger">' + jqXHR.responseText + '</span>');
 		}
 	});
@@ -660,10 +659,10 @@ function saveFareRulesSimple() {
 
 function getPythonZones() {
 	let xhr = new XMLHttpRequest();
-	xhr.open('GET', `API/zoneIdList`);
+	xhr.open('GET', `${APIpath}gtfs/stop/list/zoneid`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
-			console.log(`Loaded data from Server API/zoneIdList .`);
+			console.log(`Loaded data from Server API/gtfs/stop/list/zoneid .`);
 			var data = JSON.parse(xhr.responseText);
 
 			// populating zone id dropdowns in Simple tab
@@ -681,7 +680,7 @@ function getPythonZones() {
 			$('#containsSelect').html(dropdown);
 		}
 		else {
-			console.log('Server request to API/zoneIdList failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
+			console.log('Server request to API/gtfs/stop/list/zoneid failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
 		}
 	};
 	xhr.send();
@@ -689,7 +688,7 @@ function getPythonZones() {
 
 function getPythonRouteIdList() {
 	let xhr = new XMLHttpRequest();
-	xhr.open('GET', `API/routeIdList`);
+	xhr.open('GET', `${APIpath}gtfs/route/list/id`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
 			console.log(`Loaded data from Server API/routeIdList .`);
@@ -722,10 +721,10 @@ function getPythonAgency() {
 	// for routes table, set a function for picking agency.
 	let xhr = new XMLHttpRequest();
 	//make API call from with this as get parameter name
-	xhr.open('GET', `${APIpath}agency`);
+	xhr.open('GET', `${APIpath}gtfs/agency/list/idname`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
-			console.log(`Loaded agency data from Server API/agency .`);
+			console.log(`Loaded API/gtfs/agency/list/idname data from Server API/agency .`);
 			var data = JSON.parse(xhr.responseText);
 			data.forEach(function (row) {
 				// Push the list of agencies for use in column agency_id

@@ -28,7 +28,7 @@ var translations = new Tabulator("#translations-table", {
 	movableColumns: true,
 	placeholder: "No Data Available",
 	layout: "fitColumns",
-	ajaxURL: `${APIpath}tableReadSave?table=translations`, //ajax URL
+	ajaxURL: `${APIpath}gtfs/translations`, //ajax URL
 	ajaxLoaderLoading: loaderHTML,
 	footerElement: footerHTML,
 	columns:[
@@ -176,7 +176,7 @@ function saveTranslation() {
 	console.log('sending to server via POST');
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}tableReadSave?table=translations&pw=${pw}`);
+	xhr.open('POST', `${APIpath}gtfs/translations?pw=${pw}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {

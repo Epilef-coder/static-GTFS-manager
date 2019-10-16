@@ -279,10 +279,10 @@ function getPythonStops() {
 	// loading stops.txt data, keyed by stop_id.
 	
 	let xhr = new XMLHttpRequest();
-	xhr.open('GET', `API/tableReadSave?table=stops`);
+	xhr.open('GET', `${APIpath}gtfs/stop`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
-			console.log(`Loaded data from Server API/tableReadSave?table=stops .`);
+			console.log(`Loaded data from Server ${APIpath}/gtfs/stop .`);
 			var data = JSON.parse(xhr.responseText);			
 			allStops = data;
 						
@@ -304,7 +304,7 @@ function getPythonStops() {
 			});	
 		}
 		else {
-			console.log('Server request to API/tableReadSave?table=stops failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
+			console.log('Server request to ${APIpath}/gtfs/stop failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
 		}
 	};
 	xhr.send();
@@ -320,7 +320,7 @@ function getPythonSequence(route_id) {
 	});		
 	// load from python.
 	let xhr = new XMLHttpRequest();
-	xhr.open('GET', `API/sequence?route=${route_id}`);
+	xhr.open('GET', `${APIpath}defaultsequence/${route_id}`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
 			console.log(`Loaded data from Server API/sequence for route_id ${route_id}.`);
@@ -565,7 +565,7 @@ function saveSequence() {
 	console.log('Also sending chosen shapes: ', chosenShape0, chosenShape1);
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}sequence?pw=${pw}&route=${selected_route_id}&shape0=${chosenShape0}&shape1=${chosenShape1}`);
+	xhr.open('POST', `${APIpath}defaultsequence/${selected_route_id}?pw=${pw}&route=&shape0=${chosenShape0}&shape1=${chosenShape1}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {
@@ -681,7 +681,7 @@ function getPythonShapesList(route_id) {
 	$('#shapes0List').html('');
 	$('#shapes1List').html('');
 	// shorter GET request. from https://api.jquery.com/jQuery.get/
-	var jqxhr = $.get(`${APIpath}shapesList?route=${route_id}`, function (data) {
+	var jqxhr = $.get(`${APIpath}gtfs/shape/list/route/${route_id}`, function (data) {
 		var shapes = JSON.parse(data);
 		console.log('GET request to API/shapesList succesful.');
 		populateShapesLists(shapes);
@@ -763,8 +763,7 @@ function populateShapesLists(shapes) {
 	
 	$('#shapes0List').trigger('change');	
 	//#######################
-	// direction 1:
-	var content = '<option value="">No Shape</option>';
+	// direction 1:	
 	var alreadySelected = false;
 	var shapesSoFar = [];
 	
@@ -1106,7 +1105,7 @@ function convertToGeoJson(filecontent, extension) {
 
 function loadShape(shape_id, whichMap) {
 	// shorter GET request. from https://api.jquery.com/jQuery.get/
-	var jqxhr = $.get(`${APIpath}shape?shape=${shape_id}`, function (data) {
+	var jqxhr = $.get(`${APIpath}gtfs/shape/${shape_id}`, function (data) {
 		var shapeArray = JSON.parse(data);
 		console.log('GET request to API/shape succesful.');
 		drawShape(shapeArray, whichMap);
@@ -1161,7 +1160,7 @@ function download_shapefile(direction = 0) {
 function getPythonRoutes() {
 	//load from python!
 	let xhr = new XMLHttpRequest();
-	xhr.open('GET', `API/tableReadSave?table=routes`);
+	xhr.open('GET', `${APIpath}gtfs/route`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
 			console.log(`GET call to Server API/tableReadSave?table=routes succesful.`);

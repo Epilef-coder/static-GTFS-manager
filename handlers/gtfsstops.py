@@ -124,7 +124,7 @@ class gtfsstopslistids(tornado.web.RequestHandler):
 
 class gtfsstoplistidnames(tornado.web.RequestHandler):
     def get(self):
-        # /API/gtfs/agency/list/idname
+        # /API/gtfs/stop/list/idname
         start = time.time()
         logmessage('\n/API/gtfs/stop/list/idname GET call')
         columns = ['stop_id','stop_name']
@@ -133,3 +133,19 @@ class gtfsstoplistidnames(tornado.web.RequestHandler):
         # time check, from https://stackoverflow.com/a/24878413/4355695
         end = time.time()
         logmessage("/API/gtfs/stop/list/idname GET call took {} seconds.".format(round(end - start, 2)))
+
+
+class  gtfsstoplistzoneid(tornado.web.RequestHandler):
+    def get(self):
+        # /API/gtfs/stop/list/zoneid
+        start = time.time()
+        logmessage('\n/API/gtfs/stop/list/zoneid GET call')
+
+        zoneCollector = set()
+        zoneCollector.update( readColumnDB('stops','zone_id') )
+        # to do: find out why this function is only looking at stops table
+        zoneList = list(zoneCollector)
+        zoneList.sort()
+        self.write(json.dumps(zoneList))
+        end = time.time()
+        logmessage("zoneIdList GET call took {} seconds.".format(round(end-start,2)))

@@ -6,34 +6,10 @@ import time
 import os
 import json
 
-from utils.gtfsimportexport import importGTFS, exportGTFS
+from utils.gtfsimportexport import exportGTFS
 from utils.logmessage import logmessage
-from utils.password import decrypt
 from utils.piwiktracking import logUse
-from utils.upload import uploadaFile
 from settings import exportFolder
-
-class gtfsImportZip(tornado.web.RequestHandler):
-    def post(self):
-        # API/gtfsImportZip?pw=${pw}
-        start = time.time()
-        logmessage('\ngtfsImportZip GET call')
-        pw = self.get_argument('pw',default='')
-        if not decrypt(pw):
-            self.set_status(400)
-            self.write("Error: invalid password.")
-            return
-
-        zipname = uploadaFile( self.request.files['gtfsZipFile'][0] )
-        if importGTFS(zipname):
-            self.write(zipname)
-        else:
-            self.set_status(400)
-            self.write("Error: invalid GTFS feed.")
-
-        end = time.time()
-        logmessage("gtfsImportZip POST call took {} seconds.".format( round(end-start,2) ))
-        logUse('gtfsImportZip')
 
 
 class commitExport(tornado.web.RequestHandler):

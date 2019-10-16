@@ -29,7 +29,7 @@ var table = new Tabulator("#frequencies-table", {
 	movableColumns: true,
 	placeholder: "No Data Available",
 	layout: "fitColumns",
-	ajaxURL: `${APIpath}tableReadSave?table=frequencies`, //ajax URL
+	ajaxURL: `${APIpath}gtfs/frequencies`, //ajax URL
 	ajaxLoaderLoading: loaderHTML,
 	footerElement: footerHTML,
 	columns:[
@@ -176,7 +176,7 @@ $("#saveFreqButton").on("click", function(){
 	console.log('sending frequencies data to server via POST');
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}tableReadSave?table=frequencies&pw=${pw}`);
+	xhr.open('POST', `${APIpath}gtfs/frequencies&pw=${pw}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {
@@ -214,15 +214,15 @@ function getPythonRoutesList() {
 	get list of trip_ids from trips table
 	populate a dropdown with it for new frequency adding. It must be an existing trip.
 	*/
-	var jqxhr = $.get( `${APIpath}tableColumn?table=routes&column=route_id`, function( data ) {
+	var jqxhr = $.get( `${APIpath}gtfs/route/list/idname`, function( data ) {
 		route_id_list =  JSON.parse(data) ;
-		console.log('GET request to API/tableColumn table=routes successful.');
+		console.log('GET request to /api/gtfs/route/list/idname successful.');
 		//allStops = data;		
 		var select2Routesitems = [];		
 		select2Routesitems.push({id : '', text: ''});
-		for(key in route_id_list) {			
-			select2Routesitems.push({id : route_id_list[key], text: route_id_list[key]})
-		}
+		route_id_list.forEach(function (item, index) {
+			select2Routesitems.push({id : item.route_id, text: item.route_id + ' - ' + item.route_short_name})
+		});
 		$("#routeSelect").select2({				
 			placeholder: "Choose a Route",
 			theme: 'bootstrap4',
@@ -231,7 +231,7 @@ function getPythonRoutesList() {
 		  });		
 	})
 	.fail( function() {
-		console.log('GET request to API/tableColumn table=routes failed.')
+		console.log('GET request to /api/gtfs/route/list/idname table=routes failed.')
 	});
 }
 
@@ -249,16 +249,15 @@ $('#routeSelect').on('select2:select', function (e) {
 		  });
 		return;
 	}
-	var jqxhr = $.get( `${APIpath}tableColumn?table=trips&column=trip_id&key=route_id&value=${route_id}`, function( data ) {
+	var jqxhr = $.get( `${APIpath}gtfs/trips/route/${route_id}`, function( data ) {
 		trip_id_list =  JSON.parse(data);		
 		var select2Tripsitems = [];
-		console.log('GET request to API/tableColumn table=trips successful.');
+		console.log(`GET request to API/gtfs/trips/route/${route_id} successful.`);
 		// Clean Trip Options		
 		$("#tripSelect").select2('data', null);
 		$("#tripSelect").empty().trigger("change");		
-		trip_id_list.forEach(function (item, index) {
-			console.log(item);
-			select2Tripsitems.push({id : item, text: item})			
+		trip_id_list.forEach(function (item, index) {			
+			select2Tripsitems.push({id : item.trip_id, text: item.trip_id + ' - ' + item.trip_short_name})			
 		});		
 		$("#tripSelect").select2({
 			placeholder: "Choose a trip",
@@ -267,6 +266,6 @@ $('#routeSelect').on('select2:select', function (e) {
 		  });
 	})
 	.fail( function() {
-		console.log('GET request to API/tableColumn table=trips failed.')
+		console.log(`GET request to API/gtfs/trips/route/${route_id} failed.`)
 	});
 });

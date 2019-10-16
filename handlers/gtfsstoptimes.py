@@ -1,6 +1,13 @@
+import json
+
 import tornado.web
 import tornado.ioloop
 import time
+
+from utils.logmessage import logmessage
+from utils.password import decrypt
+from utils.tables import readTableDB, replaceTableDB
+
 
 class stopTimes(tornado.web.RequestHandler):
     def get(self):
@@ -73,3 +80,47 @@ class stopTimes(tornado.web.RequestHandler):
 
         end = time.time()
         logmessage("stopTimes POST call took {} seconds.".format(round(end-start,2)))
+
+
+class gtfsstoptimes(tornado.web.RequestHandler):
+    # /API/gtfs/stoptimes AND /API/gtfs/stoptimes/{trip_id}
+    def get(self, trip_id=None):
+        if trip_id:
+            start = time.time()
+            logmessage('\n/API/gtfs/stoptimes/{} GET call'.format(trip_id))
+            agencyJson = readTableDB('stop_times', key='trip_id', value=trip_id).to_json(orient='records', force_ascii=False)
+            self.write(agencyJson)
+            # time check, from https://stackoverflow.com/a/24878413/4355695
+            end = time.time()
+            logmessage("/API/gtfs/stoptimes/{} GET call took {} seconds.".format(trip_id, round(end - start, 2)))
+        else:
+            start = time.time()
+            logmessage('\n/API/gtfs/stoptimes GET call')
+            agencyJson = readTableDB('stop_times').to_json(orient='records', force_ascii=False)
+            self.write(agencyJson)
+            # time check, from https://stackoverflow.com/a/24878413/4355695
+            end = time.time()
+            logmessage("/API/gtfs/stoptimes GET call took {} seconds.".format(round(end - start, 2)))
+
+    def post(self, trip_id=None):
+        # /API/gtfs/stoptimes/{trip_id}
+        if self.request.body:
+            if trip_id:
+                start = time.time()
+                logmessage('\n/API/gtfs/stoptimes/{} POST call'.format(trip_id))
+                pw = self.get_argument('pw', default='')
+                if not decrypt(pw):
+                    self.set_status(400)
+                    self.write("Error: invalid password.")
+                    return
+                # received text comes as bytestring. Convert to unicode using .decode('UTF-8') from https://stackoverflow.com/a/6273618/4355695
+                data = json.loads(self.request.body.decode('UTF-8'))
+
+                if replaceTableDB('stop_times', data, key='trip_id', value=trip_id):  # replaceTableDB(tablename, data)
+                    self.write('Saved Agency data to DB.')
+                # time check, from https://stackoverflow.com/a/24878413/4355695
+                end = time.time()
+                logmessage("/API/gtfs/trips POST call took {} seconds.".format(round(end - start, 2)))
+        else:
+            self.write("Error: Saving table data")
+
