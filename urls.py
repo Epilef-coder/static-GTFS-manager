@@ -4,17 +4,21 @@ from handlers.app import AppDatabaseBlank, AppDatabaseGTFSImport, AppConfig
 from handlers.gtfsagency import *
 from handlers.gtfscalendar import calendar, gtfscalendarlistids, gtfscalendarcurrent,gtfscalendar
 from handlers.gtfscalendardates import gtfscalendardateslistids,gtfscalendardates
+from handlers.gtfsfeedinfo import gtfsfeedinfo
 from handlers.gtfstranslations import gtfstranlations
 from handlers.gtfsfrequencies import gtfsfrequencies, gtfsfrequencieslistids
 from handlers.gtfsroutes import *
 from handlers.gtfsfarerules import gtfsfarerules, gtfsfareruleslistids, fareRulesPivoted
 from handlers.gtfsfareattributes import gtfsfareattributes, gtfsfareattributeslistids
-from handlers.gtfsshapes import *
+from handlers.gtfsshapes import gtfsshape, gtfsshapelistids, gtfsshapeslistbyroute, shape, shapesList, allShapesList
 from handlers.gtfsstops import *
 from handlers.gtfstrips import *
 from handlers.gtfsstoptimes import *
 from handlers.importexport import *
 from handlers.appstats import *
+from handlers.krml import krmlstations, krmlXMLUpload, krmlXMLDiagnose, krmlfareChartUpload, krmlxml2GTFS
+from handlers.renamedelete import gtfsrenamelistAllids, gtfsdeletelistAllids, gtfsReplaceID, gtfsdeletediag, \
+        gtfsdeleteByKey
 from handlers.sequence import defaultsequence, defaultsequencebyroute
 from utils.tables import tableReadSave, tableColumn
 
@@ -48,7 +52,7 @@ url_patterns = [
         # TODO: Replace(r"/API/xml2GTFS", xml2GTFS),
         # TODO: Replace(r"/API/gtfsBlankSlate", gtfsBlankSlate),
         # TODO: Replace(r"/API/translations", translations),
-        (r"/API/shapesList", shapesList),
+        #TODO: REMOVE (r"/API/shapesList", shapesList),
         (r"/API/allShapesList", allShapesList),
         (r"/API/shape", shape),
         # TODO: Replace(r"/API/listAll", listAll),
@@ -106,6 +110,17 @@ url_patterns = [
         (r"/API/gtfs/fareattributes/(.*)", gtfsfareattributes),
         (r"/API/gtfs/translations", gtfstranlations),
         (r"/API/gtfs/translations/(.*)", gtfstranlations),
+        (r"/API/gtfs/feedinfo", gtfsfeedinfo),
+        (r"/API/gtfs/rename/listid", gtfsrenamelistAllids),
+        (r"/API/gtfs/rename/(.*)", gtfsReplaceID),
+        (r"/API/gtfs/delete/listid", gtfsdeletelistAllids),
+        (r"/API/gtfs/delete/diagnose/(.*)", gtfsdeletediag),
+        (r"/API/gtfs/delete/(.*)", gtfsdeleteByKey),
+        (r"/API/app/database/krml/import/stations", krmlstations),
+        (r"/API/app/database/krml/import/xml", krmlXMLUpload),
+        (r"/API/app/database/krml/import/diagnose", krmlXMLDiagnose),
+        (r"/API/app/database/krml/import/farechart", krmlfareChartUpload),
+        (r"/API/app/database/krml/import", krmlxml2GTFS),
         #(r"/API/idList", idList),
         (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
     ]

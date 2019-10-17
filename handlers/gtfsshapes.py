@@ -5,10 +5,11 @@ import gc # garbage collector, from https://stackoverflow.com/a/1316793/4355695
 import time
 import json
 
-from settings import sequenceDBfile, uploadFolder
+from settings import uploadFolder
 from utils.logmessage import logmessage
 from utils.password import decrypt
-from utils.tables import readTableDB, readColumnDB, replaceTableDB, tinyDBopen
+from utils.shapes import allShapesListFunc, geoJson2shape
+from utils.tables import readTableDB, readColumnDB, replaceTableDB
 from utils.upload import uploadaFile
 
 
@@ -244,15 +245,3 @@ class gtfsshapeslistbyroute(tornado.web.RequestHandler):
 
 
 
-def allShapesListFunc():
-    shapeIDsJson = {}
-
-    shapeIDsJson['all'] = readColumnDB('shapes','shape_id')
-
-    db = tinyDBopen(sequenceDBfile)
-    allSequences = db.all()
-    db.close()
-
-    shapeIDsJson['saved'] = { x['route_id']:[ x.get('shape0', ''), x.get('shape1','') ]  for x in allSequences }
-
-    return shapeIDsJson

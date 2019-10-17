@@ -393,13 +393,13 @@ function saveTranslation() {
 */
 function getPythonAllIDs() {
 	// shorter GET request. from https://api.jquery.com/jQuery.get/
-	var jqxhr = $.get( `${APIpath}listAll`, function( data ) {
+	var jqxhr = $.get( `${APIpath}gtfs/rename/listid`, function( data ) {
 		globalIDs =  JSON.parse(data) ;
-		console.log('listAll API GET request successful. Loaded lists of all ids.');
+		console.log('/API/gtfs/rename/listid GET request successful. Loaded lists of all ids.');
 		populateMaintenanceLists();
 	})
 	.fail( function() {
-		console.log('GET request to API/tripIdList failed.')
+		console.log('GET request to /API/gtfs/rename/listid failed.')
 	});
 
 }
@@ -801,7 +801,7 @@ function replaceID() {
 	$('#renameStatus').html( 'Processing.. please wait..' );
 
 	$.ajax({
-		url : `${APIpath}replaceID?pw=${pw}&key=${key}&valueFrom=${valueFrom}&valueTo=${valueTo}`,
+		url : `${APIpath}gtfs/rename/${key}?pw=${pw}&valueFrom=${valueFrom}&valueTo=${valueTo}`,
 		type : 'GET',
 		//data : JSON.stringify(tablekeys),
 		//cache: false,

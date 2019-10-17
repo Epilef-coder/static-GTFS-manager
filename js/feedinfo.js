@@ -44,9 +44,9 @@ $('#saveFeedInfoButton').on('click', function(){
 // feed_info table
 
 function loadFeedInfo() {
-	var jqxhr = $.get( `${APIpath}tableReadSave?table=feed_info`, function( data ) {
+	var jqxhr = $.get( `${APIpath}gtfs/feedinfo`, function( data ) {
 		list =  JSON.parse(data);
-		console.log('GET request to API/tableReadSave for table=feed_info succesfull.');
+		console.log('GET request to API/gtfs/feedinfo succesfull.');
 
 		for (var p in list[0]) {
 			if( list[0].hasOwnProperty(p) ) {
@@ -61,7 +61,7 @@ function loadFeedInfo() {
 		}              
 	})
 	.fail( function() {
-		console.log('GET request to API/tableReadSave table=feed_info failed.')
+		console.log('GET request to API/gtfs/feedinfo failed.')
 	});
 }
 
@@ -102,12 +102,12 @@ function SaveFeedInfo() {
 	console.log('sending to server via POST');
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}tableReadSave?pw=${pw}&table=feed_info`);
+	xhr.open('POST', `${APIpath}gtfs/feedinfo?pw=${pw}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {
 		if (xhr.status === 200) {
-			console.log('Successfully sent data via POST to server API/tableReadSave table=agency, response received: ' + xhr.responseText);
+			console.log('Successfully sent data via POST to server API/gtfs/feedinfo, response received: ' + xhr.responseText);
 			//$('#feedInfoSaveStatus').html('<span class="alert alert-success">Success. Message: ' + xhr.responseText + '</span>');
 			$.toast({
 				title: 'Save Feed Info',
@@ -117,7 +117,7 @@ function SaveFeedInfo() {
 				delay: 5000
 			  });
 		} else {
-			console.log('Server POST request to API/tableReadSave table=agency failed. Returned status of ' + xhr.status + ', reponse: ' + xhr.responseText );
+			console.log('Server POST request to API/gtfs/feedinfo failed. Returned status of ' + xhr.status + ', reponse: ' + xhr.responseText );
 			//$('#feedInfoSaveStatus').html('<span class="alert alert-danger">Failed to save. Message: ' + xhr.responseText+'</span>');
 			$.toast({
 				title: 'Save Feed Info',

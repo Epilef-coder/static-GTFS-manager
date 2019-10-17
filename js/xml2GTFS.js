@@ -104,7 +104,7 @@ var stations = new Tabulator("#stations-table", {
 		{ title: "stop_name_secondlang", field: "stop_name_secondlang", editor: "input", headerFilter: "input", validator: ["required", "string", "minLength:1"], headerSort: false },
 		{ title: "wheelchair_boarding", field: "wheelchair_boarding", editor: "select", editorParams: { 0: "0 - No", 1: "1 - Yes" }, headerSort: false }
 	],
-	ajaxURL: "API/stations", //ajax URL
+	ajaxURL: `${APIpath}app/database/krml/import/stations`, //ajax URL
 	/* // don't need to process the incoming data here, but may be useful elsewhere.
 	ajaxResponse:function(url, params, response){
 		return response; 
@@ -235,14 +235,14 @@ function XMLUpload() {
 	formData.append('sundayXML', $('#sundayXML')[0].files[0]);
 
 	$.ajax({
-		url: `${APIpath}XMLUpload?pw=${pw}&depot=${depot}`,
+		url: `${APIpath}app/database/krml/import/xml?pw=${pw}&depot=${depot}`,
 		type: 'POST',
 		data: formData,
 		cache: false,
 		processData: false,  // tell jQuery not to process the data
 		contentType: false,  // tell jQuery not to set contentType
 		success: function (returndata) {
-			console.log('API/XMLUpload POST request with file upload successfully done.');
+			console.log('API/app/database/krml/import/xml POST request with file upload successfully done.');
 			diagnosticDataActions(returndata); // this set of actions is being repeated even in subsequent reDiagnose function, so putting them together in a function and avoiding redundancy.
 		},
 		error: function (jqXHR, exception) {
@@ -312,7 +312,7 @@ function saveStations() {
 	console.log('sending stations table data to server via POST.');
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}stations?pw=${pw}`);
+	xhr.open('POST', `${APIpath}app/database/krml/import/stations?pw=${pw}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {
@@ -340,7 +340,7 @@ function reDiagnose() {
 
 		let xhr = new XMLHttpRequest();
 		//make API call from with this as get parameter name
-		xhr.open('GET', `${APIpath}XMLDiagnose?weekdayXML=${weekdayXML}&sundayXML=${sundayXML}&depot=${depot}`);
+		xhr.open('GET', `${APIpath}app/database/krml/import/diagnose?weekdayXML=${weekdayXML}&sundayXML=${sundayXML}&depot=${depot}`);
 		xhr.onload = function () {
 			if (xhr.status === 200) { //we have got a Response
 				console.log(`Sent Diagnostic request to Server API/XMLDiagnose successfully.`);
@@ -446,7 +446,7 @@ function fareChartUpload() {
 	formData.append('fareChart', $('#fareChart')[0].files[0]);
 
 	$.ajax({
-		url: `${APIpath}fareChartUpload?pw=${pw}`,
+		url: `${APIpath}app/database/krml/import/farechart?pw=${pw}`,
 		type: 'POST',
 		data: formData,
 		cache: false,
@@ -589,19 +589,19 @@ function pythonxml2GTFS() {
 	$('#xml2GTFSStatus').html('<div class="alert alert-secondary col-md-4">Sending config parameters...<br>Backing up existing data... <br>Processing uploaded files to generate new GTFS...<br>Populating database...<br>Please wait...</div>');
 
 	$.ajax({
-		url: `${APIpath}xml2GTFS?pw=${pw}`,
+		url: `${APIpath}app/database/krml/import?pw=${pw}`,
 		type: 'POST',
 		data: JSON.stringify(config),
 		cache: false,
 		processData: false,  // tell jQuery not to process the data
 		contentType: 'application/json; charset=utf-8',
 		success: function (returndata) {
-			console.log('API/xml2GTFS POST request successful.');
+			console.log('API/app/database/krml/import POST request successful.');
 			$('#xml2GTFSStatus').html('<div class="alert alert-success col-md-4">' + returndata + '</div>');
 
 		},
 		error: function (jqXHR, exception) {
-			console.log('API/xml2GTFS POST request failed.');
+			console.log('API/app/database/krml/import POST request failed.');
 			$('#xml2GTFSStatus').html('<div class="alert alert-danger col-md-4">' + jqXHR.responseText + '</div>');
 		}
 	});
