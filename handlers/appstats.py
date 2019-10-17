@@ -34,9 +34,15 @@ def GTFSstats():
     - Pad to have tabular like view
     - Format numbers to have thousands separators
     - If there are excess agencies, mention only first two and then put number of remaining
+}
+
+
+
+
+
     '''
     content = '';
-
+    jsoncontent = {}
     agencyDF = readTableDB('agency')
     if len(agencyDF):
         agencyList = agencyDF.agency_name.tolist()
@@ -46,7 +52,8 @@ def GTFSstats():
         content += 'Agency: {}<br>'.format(', '.join(agencyList))
     else:
         content += 'Agency: none found.<br>'
-
+    jsoncontent['agency'] = agencyList
+    jsoncontent['files'] = []
     filenames = findFiles(dbFolder, ext='.h5', prefix=None, chunk='all')
 
     coveredFiles = []
@@ -70,6 +77,7 @@ def GTFSstats():
                 # have to close this opened file, else will conflict with pd.read_csv later on
                 coveredFiles.append(tablename + '.h5')
             message = '{}: {:,} entries'.format(tablename.ljust(20), count)
+            jsoncontent['files'].append({'type': 1, 'filename': tablename, 'rows': int(count)})
             # {:,} : does number formattting. from https://stackoverflow.com/q/16670125/4355695
             # .ljust(20): pads spaces to string so that total len=20. from https://stackoverflow.com/a/5676676/4355695
             logmessage(message)
@@ -88,6 +96,7 @@ def GTFSstats():
                     hdf.close()
                     coveredFiles.append(h5File)
             message = '{}: {:,} entries'.format(tablename.ljust(20), count)
+            jsoncontent['files'].append({'type': 1, 'filename': tablename, 'rows': int(count)})
             logmessage(message)
             content += message + '<br>'
 
@@ -110,6 +119,7 @@ def GTFSstats():
                 hdf.close()
                 coveredFiles.append(tablename + '.h5')
             message = '{}: {:,} entries'.format(tablename.ljust(20), count)
+            jsoncontent['files'].append({'type': 2, 'filename': tablename, 'rows': int(count)})
             logmessage(message)
             content += message + '<br>'
 
@@ -126,6 +136,7 @@ def GTFSstats():
                     hdf.close()
                     coveredFiles.append(h5File)
             message = '{}: {:,} entries'.format(tablename.ljust(20), count)
+            jsoncontent['files'].append({'type': 2, 'filename': tablename, 'rows': int(count)})
             logmessage(message)
             content += message + '<br>'
 
@@ -143,6 +154,7 @@ def GTFSstats():
             count = 0
         hdf.close()
         message = '{}: {:,} entries'.format(h5File[:-3].ljust(20), count)
+        jsoncontent['files'].append({'type': 3, 'filename': h5File[:-3], 'rows': int(count)})
         logmessage(message)
         content += message + '<br>'
 
@@ -151,6 +163,7 @@ def GTFSstats():
     content += '<br>#: part of GTFS spec but not compulsory'
     if (remainingFiles): content += '<br>^: not part of traditional GTFS spec, used by operator for additional purposes'
 
-    return content
+    # return content
+    return jsoncontent
 
 # end of GTFSstats function
