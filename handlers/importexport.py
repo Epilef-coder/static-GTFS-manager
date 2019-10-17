@@ -24,7 +24,7 @@ class commitExport(tornado.web.RequestHandler):
             return
         commitFolder = exportFolder + '{:%Y-%m-%d-}'.format(datetime.datetime.now()) + commit + '/'
         finalmessage = exportGTFS(commitFolder)
-        # this is the main function. it's in GTFSserverfunctions.py
+        # this is the main function. it's in utils/gtfsimportexport.py
 
         self.write(finalmessage)
         end = time.time()

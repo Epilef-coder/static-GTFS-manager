@@ -1,42 +1,23 @@
-'''
-# dry run XML 2 GTFS
-import json
 import os
-import time, datetime
-
-import xmltodict, csv
-import pandas as pd
+import time
+import zipfile
 from collections import OrderedDict
-import zipfile, zlib
-from tinydb import TinyDB, Query
-import webbrowser
+
 import pandas as pd
-from Crypto.PublicKey import RSA
-import shutil # used in fareChartUpload to fix header if changed
-import pathlib
-from math import sin, cos, sqrt, atan2, radians
+import xmltodict
 
-# setting constants
-root = os.path.dirname(__file__)
-dbfile = 'GTFS/db.json'
-sequenceDBfile = 'GTFS/sequence.json'
-uploadFolder = 'uploads/'
-xmlFolder = 'xml_related/'
-passwordFile = 'js/rsa_key.bin'
+from settings import xmlFolder, uploadFolder, debugMode, logFolder
+from utils.gtfsimportexport import backupDB, purgeDB, importGTFS
+from utils.importexport import csvunpivot
+from utils.logmessage import logmessage
+from utils.shapes import lat_long_dist, geoJson2shape
 
-# importing functions.py, embedding it inline to avoid re-declarations etc
-#exec(open("functions-from-ph1.py", encoding='utf8').read())
-exec(open("GTFSserverfunctions.py", encoding='utf8').read())
-
-configdata = {'checkFaresFlag': True, 'checkCalendarFlag': True, 'sundayXML': '8S0845_MACE.xml', 'stations': 'stations.csv', 'agency_id': 'KMRL', 'start_date': '20180404', 'routes': [{'sundaySchedule': '8S0845_MACE', 'route_long_name': 'Route 1', 'route_short_name': 'R1', 'route_id': 'R1', 'weekdaySchedule': '8W0845_MACE'}], 'agency_name': 'Kochi Metro', 'agency_url': 'http://www.kochimetro.org/', 'fareschart': 'fares-chart.csv', 'checkAgencyFlag': True, 'checkRoutesFlag': True, 'fares': {'F1': 10, 'F2': 20, 'F5': 50, 'F4': 40, 'F3': 30}, 'agency_timezone': 'Asia/Kolkata', 'weekdayXML': '8W0845_MACE.xml', 'end_date': '20990101', 'depotstations': 'STA_COD_3512T_BH,STA_COD_3509T_DN'}
-
-logmessage('config params:')
-logmessage(configdata)
-'''
 
 def xml2GTFSConvert(configdata):
 	outputFolder = xmlFolder + 'xml2GTFS/'
-	pathlib.Path(outputFolder).mkdir(parents=True, exist_ok=True) 
+	if not os.path.exists(outputFolder):
+		os.makedirs(outputFolder)
+
 	returnMessage = ''
 	# way to get json value: trip.get('SERVICE_ID')
 
@@ -412,3 +393,13 @@ def xml2GTFSConvert(configdata):
 	return returnMessage
 # running it
 # xml2GTFSConvert(configdata)
+
+
+def get_sec(time_str):
+	h, m, s = time_str.split(':')
+	return int(h) * 3600 + int(m) * 60 + int(s)
+
+
+def intcheck(s):
+	s = s.strip()
+	return int(s) if s else ''

@@ -1,4 +1,17 @@
-# hydCSV2GTFS.py
+# hrmlcsv2gtfs.py
+import io
+import json
+import time
+import zipfile
+from collections import OrderedDict
+
+import pandas as pd
+
+from settings import uploadFolder, logFolder
+from utils.gtfsimportexport import importGTFS
+from utils.logmessage import logmessage
+from utils.shapes import lat_long_dist
+
 
 def hydGTFSfunc(files, payload):
 	#files
@@ -260,7 +273,7 @@ def hydGTFSfunc(files, payload):
 	for line in translationSource:
 		row = {}
 		row['trans_id'] = line['English']
-		
+
 		if len(line.get('Telegu','')):
 			row['lang'] = 'te' #Telegu
 			row['translation'] = line['Telegu']
@@ -453,7 +466,7 @@ def hydGTFSfunc(files, payload):
 				elif stopsSequenceString in sequenceString1:
 					direction_id = 1
 				else: 
-					logmessage('ALERT! this trip is NOT in any sequence.', trip, stopsSequence)
+					logmessage('ALERT! this trip is NOT in any sequence.', trip, stopsSequenceString)
 					continue
 
 
@@ -627,16 +640,6 @@ def hydGTFSfunc(files, payload):
 	logmessage('trips.txt created, %d entries'%len(trips_collectorDF))
 	zf.write(outputFolder+'trips.txt', arcname='trips.txt', compress_type=zipfile.ZIP_DEFLATED )
 
-
-
-
-
-
-
-
-
-
-
 	###################
 	# end
 	zf.close()
@@ -647,24 +650,6 @@ def hydGTFSfunc(files, payload):
 	returnJson['message'] += '<a target="_blank" href="' + logFolder + 'log.txt" target="_blank">Click here</a> for detailed logs.<br>'
 	returnJson['status'] = True
 	return returnJson
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #######################
@@ -733,15 +718,6 @@ def geoJson2shapeHYD(route_id, shapefileContent, shapefileRev=None):
 		prevlon = item[0]
 	
 	return output_array
-
-
-
-
-
-
-
-
-
 
 ####################################
 def get_sec(time_str):

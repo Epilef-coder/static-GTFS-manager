@@ -3,7 +3,6 @@ from collections import OrderedDict
 import pandas as pd
 import xmltodict
 
-from GTFSserverfunctions import readStationsCSV
 from settings import uploadFolder, xmlFolder
 from utils.logmessage import logmessage
 
@@ -165,3 +164,19 @@ def csvunpivot(filename, keepcols, var_header, value_header, sortby):
 	fares_unpivoted_clean = fares_unpivoted.rename(columns={'Stations': 'origin_id'}).dropna()
 	# 4.9.18: returns a dataframe now
 	return fares_unpivoted_clean
+
+
+def readStationsCSV(csvfile = xmlFolder + 'stations.csv'):
+	'''
+	This is for KMRL Metro file import
+	'''
+	stations = pd.read_csv(csvfile)
+
+	# load up_id and down_id columns, but removing blank/null values. From https://stackoverflow.com/a/22553757/4355695
+	upList = stations[stations['up_id'].notnull()]['up_id']
+	downList = stations[stations['down_id'].notnull()]['down_id']
+
+	mappedStopsList = set() # non-repeating list. Silently drops any repeating values getting added.
+	mappedStopsList.update( upList )
+	mappedStopsList.update( downList )
+	return mappedStopsList

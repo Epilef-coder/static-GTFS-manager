@@ -854,7 +854,7 @@ function diagnoseConvertHYD() {
 	// constructing POST API call
 
 	$.ajax({
-		url: `${APIpath}hydGTFS?pw=${pw}`,
+		url: `${APIpath}app/database/hrml/import?pw=${pw}`,
 		type: 'POST',
 		data: formData,
 		cache: false,

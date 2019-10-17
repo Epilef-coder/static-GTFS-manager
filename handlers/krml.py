@@ -7,6 +7,7 @@ import tornado.web
 
 from settings import xmlFolder, uploadFolder
 from utils.importexport import csvwriter, diagnoseXMLs, csvunpivot
+from utils.krmlxml2gtfs import xml2GTFSConvert
 from utils.logmessage import logmessage
 from utils.password import decrypt
 from utils.piwiktracking import logUse

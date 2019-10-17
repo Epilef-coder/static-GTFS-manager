@@ -14,6 +14,7 @@ from handlers.gtfsshapes import gtfsshape, gtfsshapelistids, gtfsshapeslistbyrou
 from handlers.gtfsstops import *
 from handlers.gtfstrips import *
 from handlers.gtfsstoptimes import *
+from handlers.hrml import hrmlhydGTFS
 from handlers.importexport import *
 from handlers.appstats import *
 from handlers.krml import krmlstations, krmlXMLUpload, krmlXMLDiagnose, krmlfareChartUpload, krmlxml2GTFS
@@ -121,8 +122,10 @@ url_patterns = [
         (r"/API/app/database/krml/import/diagnose", krmlXMLDiagnose),
         (r"/API/app/database/krml/import/farechart", krmlfareChartUpload),
         (r"/API/app/database/krml/import", krmlxml2GTFS),
+        (r"/API/app/database/hrml/import", hrmlhydGTFS),
         #(r"/API/idList", idList),
-        (r"/(.*)", tornado.web.StaticFileHandler, {"path": root, "default_filename": "index.html"})
+        (r"/export/(.*)", tornado.web.StaticFileHandler, {"path": exportFolder}),
+        (r"/(.*)", tornado.web.StaticFileHandler, {"path": STATIC_ROOT, "default_filename": "index.html"})
     ]
 
 # Try to make a api

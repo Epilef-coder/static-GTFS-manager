@@ -49,6 +49,8 @@ import os,json
 #     tornado.options.parse_config_file(options.config)
 
 root = os.path.dirname(__file__) # needed for tornado
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(BASE_DIR, 'website')
 logFolder = os.path.join(root,'logs/')
 uploadFolder = os.path.join(root,'uploads/')
 xmlFolder = os.path.join(root,'xml_related/')

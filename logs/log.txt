@@ -12628,3 +12628,233 @@ fareChartUpload POST call
 2019-Oct-17 14:59:32 : Loading and unpivoting C:\Projecten\static-GTFS-manager\uploads/fares-chart.csv
 2019-Oct-17 14:59:32 : ['F1', 'F2', 'F3', 'F4', 'F5']
 2019-Oct-17 14:59:32 : fareChartUpload POST call took 0.13 seconds.
+2019-Oct-17 20:43:24 : Loaded dependencies, starting static GTFS Manager program.
+2019-Oct-17 20:43:25 : 
+
+Open http://localhost:5000 in your Web Browser if you don't see it opening automatically in 5 seconds.
+
+Note: If this is through docker, then it's not going to auto-open in browser, don't wait.
+2019-Oct-17 20:43:27 : 
+stats GET call
+2019-Oct-17 20:43:27 : readTableDB: Loaded agency, 1 records
+2019-Oct-17 20:43:27 : agency              : 1 entries
+2019-Oct-17 20:43:27 : calendar            : 1 entries
+2019-Oct-17 20:43:27 : stops               : 19 entries
+2019-Oct-17 20:43:27 : routes              : 9 entries
+2019-Oct-17 20:43:27 : trips               : 0 entries
+2019-Oct-17 20:43:27 : stop_times          : 0 entries
+2019-Oct-17 20:43:27 : calendar_dates      : 0 entries
+2019-Oct-17 20:43:27 : fare_attributes     : 0 entries
+2019-Oct-17 20:43:27 : fare_rules          : 0 entries
+2019-Oct-17 20:43:27 : shapes              : 299 entries
+2019-Oct-17 20:43:27 : frequencies         : 0 entries
+2019-Oct-17 20:43:27 : transfers           : 0 entries
+2019-Oct-17 20:43:27 : feed_info           : 0 entries
+2019-Oct-17 20:43:27 : stats GET call took 0.76 seconds.
+2019-Oct-17 20:43:29 : 
+pastCommits GET call
+2019-Oct-17 20:43:29 : pastCommits GET call took 0.01 seconds.
+2019-Oct-17 20:43:36 : 
+stats GET call
+2019-Oct-17 20:43:36 : readTableDB: Loaded agency, 1 records
+2019-Oct-17 20:43:36 : agency              : 1 entries
+2019-Oct-17 20:43:36 : calendar            : 1 entries
+2019-Oct-17 20:43:36 : stops               : 19 entries
+2019-Oct-17 20:43:36 : routes              : 9 entries
+2019-Oct-17 20:43:36 : trips               : 0 entries
+2019-Oct-17 20:43:36 : stop_times          : 0 entries
+2019-Oct-17 20:43:36 : calendar_dates      : 0 entries
+2019-Oct-17 20:43:36 : fare_attributes     : 0 entries
+2019-Oct-17 20:43:36 : fare_rules          : 0 entries
+2019-Oct-17 20:43:36 : shapes              : 299 entries
+2019-Oct-17 20:43:36 : frequencies         : 0 entries
+2019-Oct-17 20:43:36 : transfers           : 0 entries
+2019-Oct-17 20:43:36 : feed_info           : 0 entries
+2019-Oct-17 20:43:36 : stats GET call took 0.1 seconds.
+2019-Oct-17 20:43:37 : 
+pastCommits GET call
+2019-Oct-17 20:43:37 : pastCommits GET call took 0.0 seconds.
+2019-Oct-17 21:29:54 : Loaded dependencies, starting static GTFS Manager program.
+2019-Oct-17 21:29:54 : 
+
+Open http://localhost:5000 in your Web Browser if you don't see it opening automatically in 5 seconds.
+
+Note: If this is through docker, then it's not going to auto-open in browser, don't wait.
+2019-Oct-17 21:29:56 : 
+stats GET call
+2019-Oct-17 21:29:56 : readTableDB: Loaded agency, 1 records
+2019-Oct-17 21:29:56 : agency              : 1 entries
+2019-Oct-17 21:29:56 : calendar            : 1 entries
+2019-Oct-17 21:29:56 : stops               : 19 entries
+2019-Oct-17 21:29:56 : routes              : 9 entries
+2019-Oct-17 21:29:56 : trips               : 0 entries
+2019-Oct-17 21:29:56 : stop_times          : 0 entries
+2019-Oct-17 21:29:56 : calendar_dates      : 0 entries
+2019-Oct-17 21:29:56 : fare_attributes     : 0 entries
+2019-Oct-17 21:29:56 : fare_rules          : 0 entries
+2019-Oct-17 21:29:56 : shapes              : 299 entries
+2019-Oct-17 21:29:56 : frequencies         : 0 entries
+2019-Oct-17 21:29:56 : transfers           : 0 entries
+2019-Oct-17 21:29:56 : feed_info           : 0 entries
+2019-Oct-17 21:29:56 : stats GET call took 0.26 seconds.
+2019-Oct-17 21:29:57 : 
+pastCommits GET call
+2019-Oct-17 21:29:57 : pastCommits GET call took 0.01 seconds.
+2019-Oct-17 21:34:47 : Loaded dependencies, starting static GTFS Manager program.
+2019-Oct-17 21:34:48 : 
+
+Open http://localhost:5000 in your Web Browser if you don't see it opening automatically in 5 seconds.
+
+Note: If this is through docker, then it's not going to auto-open in browser, don't wait.
+2019-Oct-17 21:37:29 : Loaded dependencies, starting static GTFS Manager program.
+2019-Oct-17 21:37:29 : 
+
+Open http://localhost:5000 in your Web Browser if you don't see it opening automatically in 5 seconds.
+
+Note: If this is through docker, then it's not going to auto-open in browser, don't wait.
+2019-Oct-17 21:37:31 : 
+stats GET call
+2019-Oct-17 21:37:31 : readTableDB: Loaded agency, 1 records
+2019-Oct-17 21:37:31 : agency              : 1 entries
+2019-Oct-17 21:37:31 : calendar            : 1 entries
+2019-Oct-17 21:37:31 : stops               : 19 entries
+2019-Oct-17 21:37:31 : routes              : 9 entries
+2019-Oct-17 21:37:31 : trips               : 0 entries
+2019-Oct-17 21:37:31 : stop_times          : 0 entries
+2019-Oct-17 21:37:31 : calendar_dates      : 0 entries
+2019-Oct-17 21:37:31 : fare_attributes     : 0 entries
+2019-Oct-17 21:37:31 : fare_rules          : 0 entries
+2019-Oct-17 21:37:31 : shapes              : 299 entries
+2019-Oct-17 21:37:31 : frequencies         : 0 entries
+2019-Oct-17 21:37:31 : transfers           : 0 entries
+2019-Oct-17 21:37:31 : feed_info           : 0 entries
+2019-Oct-17 21:37:31 : stats GET call took 0.31 seconds.
+2019-Oct-17 21:37:33 : 
+pastCommits GET call
+2019-Oct-17 21:37:33 : pastCommits GET call took 0.01 seconds.
+2019-Oct-17 21:37:35 : 
+stats GET call
+2019-Oct-17 21:37:35 : readTableDB: Loaded agency, 1 records
+2019-Oct-17 21:37:35 : agency              : 1 entries
+2019-Oct-17 21:37:35 : calendar            : 1 entries
+2019-Oct-17 21:37:35 : stops               : 19 entries
+2019-Oct-17 21:37:35 : routes              : 9 entries
+2019-Oct-17 21:37:35 : trips               : 0 entries
+2019-Oct-17 21:37:35 : stop_times          : 0 entries
+2019-Oct-17 21:37:35 : calendar_dates      : 0 entries
+2019-Oct-17 21:37:35 : fare_attributes     : 0 entries
+2019-Oct-17 21:37:35 : fare_rules          : 0 entries
+2019-Oct-17 21:37:35 : shapes              : 299 entries
+2019-Oct-17 21:37:35 : frequencies         : 0 entries
+2019-Oct-17 21:37:35 : transfers           : 0 entries
+2019-Oct-17 21:37:35 : feed_info           : 0 entries
+2019-Oct-17 21:37:35 : stats GET call took 0.14 seconds.
+2019-Oct-17 21:37:36 : 
+pastCommits GET call
+2019-Oct-17 21:37:36 : pastCommits GET call took 0.01 seconds.
+2019-Oct-17 21:38:28 : 
+stats GET call
+2019-Oct-17 21:38:28 : readTableDB: Loaded agency, 1 records
+2019-Oct-17 21:38:28 : agency              : 1 entries
+2019-Oct-17 21:38:28 : calendar            : 1 entries
+2019-Oct-17 21:38:28 : stops               : 19 entries
+2019-Oct-17 21:38:28 : routes              : 9 entries
+2019-Oct-17 21:38:28 : trips               : 0 entries
+2019-Oct-17 21:38:28 : stop_times          : 0 entries
+2019-Oct-17 21:38:28 : calendar_dates      : 0 entries
+2019-Oct-17 21:38:28 : fare_attributes     : 0 entries
+2019-Oct-17 21:38:28 : fare_rules          : 0 entries
+2019-Oct-17 21:38:28 : shapes              : 299 entries
+2019-Oct-17 21:38:28 : frequencies         : 0 entries
+2019-Oct-17 21:38:28 : transfers           : 0 entries
+2019-Oct-17 21:38:28 : feed_info           : 0 entries
+2019-Oct-17 21:38:28 : stats GET call took 0.15 seconds.
+2019-Oct-17 21:38:29 : 
+pastCommits GET call
+2019-Oct-17 21:38:29 : pastCommits GET call took 0.01 seconds.
+2019-Oct-17 21:38:30 : 
+stats GET call
+2019-Oct-17 21:38:30 : readTableDB: Loaded agency, 1 records
+2019-Oct-17 21:38:30 : agency              : 1 entries
+2019-Oct-17 21:38:30 : calendar            : 1 entries
+2019-Oct-17 21:38:30 : stops               : 19 entries
+2019-Oct-17 21:38:30 : routes              : 9 entries
+2019-Oct-17 21:38:30 : trips               : 0 entries
+2019-Oct-17 21:38:30 : stop_times          : 0 entries
+2019-Oct-17 21:38:30 : calendar_dates      : 0 entries
+2019-Oct-17 21:38:30 : fare_attributes     : 0 entries
+2019-Oct-17 21:38:30 : fare_rules          : 0 entries
+2019-Oct-17 21:38:30 : shapes              : 299 entries
+2019-Oct-17 21:38:30 : frequencies         : 0 entries
+2019-Oct-17 21:38:30 : transfers           : 0 entries
+2019-Oct-17 21:38:30 : feed_info           : 0 entries
+2019-Oct-17 21:38:30 : stats GET call took 0.11 seconds.
+2019-Oct-17 21:38:31 : 
+pastCommits GET call
+2019-Oct-17 21:38:32 : pastCommits GET call took 0.02 seconds.
+2019-Oct-17 21:38:37 : 
+stats GET call
+2019-Oct-17 21:38:37 : readTableDB: Loaded agency, 1 records
+2019-Oct-17 21:38:37 : agency              : 1 entries
+2019-Oct-17 21:38:37 : calendar            : 1 entries
+2019-Oct-17 21:38:37 : stops               : 19 entries
+2019-Oct-17 21:38:37 : routes              : 9 entries
+2019-Oct-17 21:38:37 : trips               : 0 entries
+2019-Oct-17 21:38:37 : stop_times          : 0 entries
+2019-Oct-17 21:38:37 : calendar_dates      : 0 entries
+2019-Oct-17 21:38:37 : fare_attributes     : 0 entries
+2019-Oct-17 21:38:37 : fare_rules          : 0 entries
+2019-Oct-17 21:38:37 : shapes              : 299 entries
+2019-Oct-17 21:38:37 : frequencies         : 0 entries
+2019-Oct-17 21:38:37 : transfers           : 0 entries
+2019-Oct-17 21:38:37 : feed_info           : 0 entries
+2019-Oct-17 21:38:37 : stats GET call took 0.1 seconds.
+2019-Oct-17 21:38:38 : 
+pastCommits GET call
+2019-Oct-17 21:38:38 : pastCommits GET call took 0.02 seconds.
+2019-Oct-17 21:39:22 : 
+pastCommits GET call
+2019-Oct-17 21:39:22 : pastCommits GET call took 0.01 seconds.
+2019-Oct-17 21:39:22 : 
+stats GET call
+2019-Oct-17 21:39:22 : readTableDB: Loaded agency, 1 records
+2019-Oct-17 21:39:22 : agency              : 1 entries
+2019-Oct-17 21:39:22 : calendar            : 1 entries
+2019-Oct-17 21:39:22 : stops               : 19 entries
+2019-Oct-17 21:39:22 : routes              : 9 entries
+2019-Oct-17 21:39:22 : trips               : 0 entries
+2019-Oct-17 21:39:22 : stop_times          : 0 entries
+2019-Oct-17 21:39:22 : calendar_dates      : 0 entries
+2019-Oct-17 21:39:22 : fare_attributes     : 0 entries
+2019-Oct-17 21:39:22 : fare_rules          : 0 entries
+2019-Oct-17 21:39:22 : shapes              : 299 entries
+2019-Oct-17 21:39:22 : frequencies         : 0 entries
+2019-Oct-17 21:39:22 : transfers           : 0 entries
+2019-Oct-17 21:39:22 : feed_info           : 0 entries
+2019-Oct-17 21:39:22 : stats GET call took 0.12 seconds.
+2019-Oct-17 21:43:31 : Loaded dependencies, starting static GTFS Manager program.
+2019-Oct-17 21:43:31 : 
+
+Open http://localhost:5000 in your Web Browser if you don't see it opening automatically in 5 seconds.
+
+Note: If this is through docker, then it's not going to auto-open in browser, don't wait.
+2019-Oct-17 21:43:33 : 
+pastCommits GET call
+2019-Oct-17 21:43:33 : pastCommits GET call took 0.0 seconds.
+2019-Oct-17 21:43:33 : 
+stats GET call
+2019-Oct-17 21:43:33 : readTableDB: Loaded agency, 1 records
+2019-Oct-17 21:43:33 : agency              : 1 entries
+2019-Oct-17 21:43:33 : calendar            : 1 entries
+2019-Oct-17 21:43:33 : stops               : 19 entries
+2019-Oct-17 21:43:33 : routes              : 9 entries
+2019-Oct-17 21:43:33 : trips               : 0 entries
+2019-Oct-17 21:43:33 : stop_times          : 0 entries
+2019-Oct-17 21:43:33 : calendar_dates      : 0 entries
+2019-Oct-17 21:43:33 : fare_attributes     : 0 entries
+2019-Oct-17 21:43:33 : fare_rules          : 0 entries
+2019-Oct-17 21:43:33 : shapes              : 299 entries
+2019-Oct-17 21:43:33 : frequencies         : 0 entries
+2019-Oct-17 21:43:33 : transfers           : 0 entries
+2019-Oct-17 21:43:33 : feed_info           : 0 entries
+2019-Oct-17 21:43:33 : stats GET call took 0.25 seconds.
