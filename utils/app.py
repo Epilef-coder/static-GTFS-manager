@@ -1,24 +1,10 @@
-import tornado.web
-import tornado.ioloop
-import pandas as pd # Replace import with function
-import time
+import os
 
-from settings import *
+import pandas as pd
+
+from settings import dbFolder, requiredFeeds, chunkRules, optionalFeeds
 from utils.logmessage import logmessage
-from utils.tables import readTableDB,findFiles
-from utils.piwiktracking import logUse
-
-class stats(tornado.web.RequestHandler):
-    def get(self):
-        # API/stats
-        start = time.time()
-        logmessage('\nstats GET call')
-        stats = GTFSstats()
-
-        self.write(json.dumps(stats))
-        end = time.time()
-        logmessage("stats GET call took {} seconds.".format(round(end - start, 2)))
-        logUse('stats')
+from utils.tables import readTableDB, findFiles
 
 
 def GTFSstats():
@@ -165,5 +151,3 @@ def GTFSstats():
 
     # return content
     return jsoncontent
-
-# end of GTFSstats function

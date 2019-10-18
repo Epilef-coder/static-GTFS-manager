@@ -4,6 +4,7 @@ import tornado.web
 
 from handlers.config import configFolder
 from settings import debugMode
+from utils.app import GTFSstats
 from utils.gtfsimportexport import backupDB, purgeDB, importGTFS
 from utils.logmessage import logmessage
 from utils.password import decrypt
@@ -75,3 +76,16 @@ class AppConfig(tornado.web.RequestHandler):
                         f.write(self.request.body.decode('UTF-8'))
                         self.write(json.dumps({'status': 'ok', 'data': []}))
                         #self.write(json.dumps({'status': 'ok', 'data': []}))
+
+
+class Appstats(tornado.web.RequestHandler):
+    def get(self):
+        # API/stats
+        start = time.time()
+        logmessage('\nstats GET call')
+        stats = GTFSstats()
+
+        self.write(json.dumps(stats))
+        end = time.time()
+        logmessage("stats GET call took {} seconds.".format(round(end - start, 2)))
+        logUse('stats')

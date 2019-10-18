@@ -1,6 +1,6 @@
 # import url handlers
 
-from handlers.app import AppDatabaseBlank, AppDatabaseGTFSImport, AppConfig
+from handlers.app import AppDatabaseBlank, AppDatabaseGTFSImport, AppConfig, Appstats
 from handlers.gtfsagency import *
 from handlers.gtfscalendar import calendar, gtfscalendarlistids, gtfscalendarcurrent,gtfscalendar
 from handlers.gtfscalendardates import gtfscalendardateslistids,gtfscalendardates
@@ -10,22 +10,23 @@ from handlers.gtfsfrequencies import gtfsfrequencies, gtfsfrequencieslistids
 from handlers.gtfsroutes import *
 from handlers.gtfsfarerules import gtfsfarerules, gtfsfareruleslistids, fareRulesPivoted
 from handlers.gtfsfareattributes import gtfsfareattributes, gtfsfareattributeslistids
-from handlers.gtfsshapes import gtfsshape, gtfsshapelistids, gtfsshapeslistbyroute, shape, shapesList, allShapesList
+from handlers.gtfsshapes import gtfsshape, gtfsshapelistids, gtfsshapeslistbyroute, shape, allShapesList
 from handlers.gtfsstops import *
 from handlers.gtfstrips import *
 from handlers.gtfsstoptimes import *
 from handlers.hrml import hrmlhydGTFS
 from handlers.importexport import *
-from handlers.appstats import *
 from handlers.krml import krmlstations, krmlXMLUpload, krmlXMLDiagnose, krmlfareChartUpload, krmlxml2GTFS
 from handlers.renamedelete import gtfsrenamelistAllids, gtfsdeletelistAllids, gtfsReplaceID, gtfsdeletediag, \
         gtfsdeleteByKey
 from handlers.sequence import defaultsequence, defaultsequencebyroute
+from settings import STATIC_ROOT
 from utils.tables import tableReadSave, tableColumn
 
 url_patterns = [
         #(r"/API/data", APIHandler),
         (r"/API/app/config", AppConfig),
+        (r"/API/app/stats", Appstats),
         (r"/API/app/database/blank",AppDatabaseBlank),
         (r"/API/app/database/gtfs/import",AppDatabaseGTFSImport),
         #(r"/API/app/database/gtfs/export",AppDatabaseGTFSImport),
@@ -42,7 +43,7 @@ url_patterns = [
         (r"/API/routeIdList", routeIdList),
         (r"/API/tripIdList", tripIdList),
         # TODO: Replace(r"/API/serviceIds", serviceIds),
-        (r"/API/stats", stats),
+
         (r"/API/commitExport", commitExport),
         (r"/API/pastCommits", pastCommits),
         #(r"/API/gtfsImportZip", gtfsImportZip),

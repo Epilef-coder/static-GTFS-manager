@@ -29,17 +29,18 @@ $(document).ready(function () {
 function getPythonGTFSstats() {
 	let xhr = new XMLHttpRequest();
 	//make API call from with this as get parameter name
-	xhr.open('GET', `${APIpath}stats`);
+	xhr.open('GET', `${APIpath}app/stats`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
 			console.log(`Loaded data from Server API/stats .`);
 			var data = JSON.parse(xhr.responseText);
-
-
-
-
 			var htmlcontent = '';
-			htmlcontent += '<div class="btn-group-vertical">'
+			htmlcontent += `<table class="table table-sm"><thead>
+			<tr>
+			  <th scope="col">File:</th>
+			  <th scope="col">Nr rows:</th>
+			</tr>
+		  </thead><tbody>`;
 			data.files.forEach(function (file) {
 				var background = 'btn-primary';
 				var foreground = 'badge-light'
@@ -59,17 +60,17 @@ function getPythonGTFSstats() {
 						break;
 				}
 
-				htmlcontent += `<button type="button" class="btn ${background} d-flex justify-content-between">
-			${file.filename} <span class="badge ${foreground}">${file.rows}</span>
-		  </button>`;
+				htmlcontent += `<tr>
+				<td>${file.filename}</td>
+				<td class="text-right">${file.rows}</td>
+				</tr>`;		
 			});
 
-			htmlcontent += '</div>';
-			console.log(htmlcontent);
+			htmlcontent += '</tbody></table>';
 			$('#GTFSstats').html(htmlcontent);
 		}
 		else {
-			console.log('Server request to API/stats for all stops failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
+			console.log('Server request to API/app/stats for all stops failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
 			//$('#GTFSstats').html('<p>Failed to fetch stats. Message: ' + xhr.responseText + '</p>');
 			$.toast({
 				title: 'GTFS Stats',
