@@ -15,12 +15,12 @@ from handlers.gtfsstops import *
 from handlers.gtfstrips import *
 from handlers.gtfsstoptimes import *
 from handlers.hrml import hrmlhydGTFS
-from handlers.importexport import *
+from handlers.importexport import commitExport, pastCommits
 from handlers.krml import krmlstations, krmlXMLUpload, krmlXMLDiagnose, krmlfareChartUpload, krmlxml2GTFS
 from handlers.renamedelete import gtfsrenamelistAllids, gtfsdeletelistAllids, gtfsReplaceID, gtfsdeletediag, \
         gtfsdeleteByKey
 from handlers.sequence import defaultsequence, defaultsequencebyroute
-from settings import STATIC_ROOT
+from settings import STATIC_ROOT, exportFolder
 from utils.tables import tableReadSave, tableColumn
 
 url_patterns = [
@@ -29,7 +29,6 @@ url_patterns = [
         (r"/API/app/stats", Appstats),
         (r"/API/app/database/blank",AppDatabaseBlank),
         (r"/API/app/database/gtfs/import",AppDatabaseGTFSImport),
-        #(r"/API/app/database/gtfs/export",AppDatabaseGTFSImport),
         (r"/API/allStops", allStops),
         (r"/API/allStopsKeyed", allStopsKeyed),
         (r"/API/routes", routes),

@@ -2,8 +2,7 @@ import json
 import time
 import tornado.web
 
-from handlers.config import configFolder
-from settings import debugMode
+from settings import debugMode,configFolder
 from utils.app import GTFSstats
 from utils.gtfsimportexport import backupDB, purgeDB, importGTFS
 from utils.logmessage import logmessage

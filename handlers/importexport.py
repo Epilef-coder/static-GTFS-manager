@@ -11,7 +11,6 @@ from utils.logmessage import logmessage
 from utils.piwiktracking import logUse
 from settings import exportFolder
 
-
 class commitExport(tornado.web.RequestHandler):
     def get(self):
         # API/commitExport?commit=${commit}

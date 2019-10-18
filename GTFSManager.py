@@ -1,8 +1,8 @@
-
 import tornado.web
 import tornado.ioloop
 import webbrowser
 # import url handlers
+
 from urls import url_patterns
 
 # setting constants
@@ -15,16 +15,8 @@ print('\n\nstatic GTFS Manager')
 print('Fork it on Github: https://github.com/WRI-Cities/static-GTFS-manager/')
 print('Starting up the program, loading dependencies, please wait...\n\n')
 
-# Temp has to be a handler that calls this function.
-from utils.password import decrypt
-# import all utils from the /utils folder.
-
-
 # import requests # nope, not needed for now
-import signal, sys # for catching Ctrl+C and exiting gracefully.
-
-
-root = os.path.dirname(__file__) # needed for tornado
+import signal, sys  # for catching Ctrl+C and exiting gracefully.
 
 thisURL = ''
 
@@ -38,20 +30,25 @@ for folder in [uploadFolder, xmlFolder, logFolder, configFolder, dbFolder, expor
 
 logmessage('Loaded dependencies, starting static GTFS Manager program.')
 
+
 def make_app():
     return tornado.web.Application(url_patterns)
+
 
 # for catching Ctrl+C and exiting gracefully. From https://nattster.wordpress.com/2013/06/05/catch-kill-signal-in-python/
 def signal_term_handler(signal, frame):
     # to do: Make this work in windows, ra!
-    print('\nClosing Program.\nThank you for using static GTFS Manager. Website: https://github.com/WRI-Cities/static-GTFS-manager/\n')
+    print(
+        '\nClosing Program.\nThank you for using static GTFS Manager. Website: https://github.com/WRI-Cities/static-GTFS-manager/\n')
     sys.exit(0)
+
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_term_handler)
+    # Start the background task:
     app = make_app()
     portnum = 5000
-    while True: # loop to increment the port number till we find one that isn't occupied
+    while True:  # loop to increment the port number till we find one that isn't occupied
         try:
             port = int(os.environ.get("PORT", portnum))
             app.listen(port)
@@ -64,9 +61,8 @@ if __name__ == "__main__":
 
     thisURL = "http://localhost:" + str(port)
     webbrowser.open(thisURL)
-    logmessage("\n\nOpen {} in your Web Browser if you don't see it opening automatically in 5 seconds.\n\nNote: If this is through docker, then it's not going to auto-open in browser, don't wait.".format(thisURL))
+    logmessage(
+        "\n\nOpen {} in your Web Browser if you don't see it opening automatically in 5 seconds.\n\nNote: If this is through docker, then it's not going to auto-open in browser, don't wait.".format(
+            thisURL))
     logUse()
     tornado.ioloop.IOLoop.current().start()
-
-
-

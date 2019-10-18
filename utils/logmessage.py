@@ -1,6 +1,7 @@
-import os
-import time, datetime
+import datetime
+
 from settings import logFolder
+
 
 def logmessage( *content ):
 	timestamp = '{:%Y-%b-%d %H:%M:%S} :'.format(datetime.datetime.now())
