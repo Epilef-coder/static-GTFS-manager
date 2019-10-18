@@ -2,6 +2,7 @@ import os,json
 # Pyinstaller fix.
 import sys
 if getattr(sys, 'frozen', False):
+    # https://pythonhosted.org/PyInstaller/runtime-information.html
     root = os.path.dirname(sys.executable)
 else:
     root = os.path.dirname(__file__) # needed for tornado
