@@ -13,6 +13,7 @@ uploadFolder = os.path.join(root,'uploads/')
 xmlFolder = os.path.join(root,'xml_related/')
 logFolder = os.path.join(root,'logs/')
 configFolder = os.path.join(root,'config/')
+reportFolder = os.path.join(root,'reports/')
 dbFolder = os.path.join(root,'db/') # 12.5.18 new pandas DB storage
 exportFolder = os.path.join(root,'export/') # 4.9.18 putting exports here now
 sequenceDBfile = os.path.join(root,'db/sequence.json')

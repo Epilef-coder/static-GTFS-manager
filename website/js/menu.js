@@ -105,10 +105,14 @@ function IconPage(pageurl) {
             // code block
             iconText = 'fa-globe';
             break;
-            case "shapes.html":
-                // code block
-                iconText = 'fa-draw-polygon';
-                break;
+        case "shapes.html":
+            // code block
+            iconText = 'fa-draw-polygon';
+            break;
+        case "validate.html":
+            // code block
+            iconText = 'fa-check-double';
+            break;
         default:
             iconText = '';
     }

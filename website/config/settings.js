@@ -42,7 +42,8 @@ const menu = {
 		"Fares": "fares.html",
 		"Shapes": "shapes.html",
 		"Translations": "translations.html",
-		"Feed Info": "feedinfo.html"
+		"Feed Info": "feedinfo.html",
+		"Validate GTFS": "validate.html"
 	},
 	"Tools": {
 		// to do: bulk action pages, diagnostic pages etc
