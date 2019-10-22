@@ -20,7 +20,7 @@ from handlers.krml import krmlstations, krmlXMLUpload, krmlXMLDiagnose, krmlfare
 from handlers.renamedelete import gtfsrenamelistAllids, gtfsdeletelistAllids, gtfsReplaceID, gtfsdeletediag, \
         gtfsdeleteByKey
 from handlers.sequence import defaultsequence, defaultsequencebyroute
-from handlers.validate import googlevalidate, pastreportsgtfsvalidate
+from handlers.validate import googlevalidate, pastreportsgtfsvalidate, getreportsgtfsvalidate, deletereportsgtfsvalidate
 from settings import STATIC_ROOT, exportFolder
 from utils.tables import tableReadSave, tableColumn
 
@@ -126,6 +126,9 @@ url_patterns = [
         (r"/API/app/database/hrml/import", hrmlhydGTFS),
         (r"/API/app/gtfs/validate", googlevalidate),
         (r"/API/app/gtfs/validate/reports", pastreportsgtfsvalidate),
+        (r"/API/app/gtfs/validate/report/remove/(.*)", deletereportsgtfsvalidate),
+        (r"/API/app/gtfs/validate/report/(.*)", getreportsgtfsvalidate),
+
         #(r"/API/idList", idList),
         (r"/export/(.*)", tornado.web.StaticFileHandler, {"path": exportFolder}),
         (r"/(.*)", tornado.web.StaticFileHandler, {"path": STATIC_ROOT, "default_filename": "index.html"})

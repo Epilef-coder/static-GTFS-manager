@@ -12,6 +12,7 @@ import tornado.ioloop
 
 from utils.gtfsimportexport import exportGTFS
 #  This is a custom version of the transitfeed validator because the published version does not support python 3
+from utils.password import decrypt
 from utils.transitfeed import feedvalidator
 from utils.logmessage import logmessage
 from settings import exportFolder, reportFolder
@@ -61,11 +62,43 @@ class googlevalidate(tornado.web.RequestHandler):
 class pastreportsgtfsvalidate(tornado.web.RequestHandler):
     def get(self):
         start = time.time()
+        jsoncontent = {}
+        jsoncontent['files'] = []
         if os.path.exists(reportFolder):
-            ListReports = os.listdir(reportFolder)
-        else:
-            ListReports = {}
-        self.write(json.dumps(ListReports))
+            for filename in os.listdir(reportFolder):
+                jsoncontent['files'].append({'id': filename.split('.')[0], 'filename': filename})
+        self.write(json.dumps(jsoncontent))
 
         end = time.time()
-        logmessage("commitExport GET call took {} seconds.".format(round(end-start,2)))
+        logmessage("API/app/gtfs/validate/reports GET call took {} seconds.".format(round(end-start,2)))
+
+class getreportsgtfsvalidate(tornado.web.RequestHandler):
+    def get(self, filenameid=None):
+        if filenameid:
+            start = time.time()
+            f = open(reportFolder + '/' + filenameid + '.html', "r", encoding='utf8')
+            report = f.read()
+            f.close()
+            self.write(report)
+
+            end = time.time()
+            logmessage("API/app/gtfs/validate/report/{} GET call took {} seconds.".format(filenameid,round(end-start,2)))
+
+class deletereportsgtfsvalidate(tornado.web.RequestHandler):
+    def get(self, filenameid=None):
+        if filenameid:
+            pw = self.get_argument('pw', default='')
+            if not decrypt(pw):
+                self.set_status(400)
+                self.write("Error: invalid password.")
+                return
+            jsoncontent = {}
+            start = time.time()
+            if os.path.exists(reportFolder + '/' + filenameid + '.html'):
+                os.remove(reportFolder + '/' + filenameid + '.html')
+                jsoncontent['status'] = True
+            else:
+                jsoncontent['status'] = False
+            self.write(json.dumps(jsoncontent))
+            end = time.time()
+            logmessage("API/app/gtfs/validate/remove/{} GET call took {} seconds.".format(filenameid,round(end-start,2)))

@@ -1,3 +1,15 @@
+var trashIcon = function (cell, formatterParams, onRendered) { //plain text value
+	return "<i class='fas fa-trash-alt'></i>";
+};
+var viewIcon = function (cell, formatterParams, onRendered) { //plain text value
+	return "<i class='fas fa-eye'></i>";
+};
+
+var downloadIcon = function (cell, formatterParams, onRendered) { //plain text value
+	return "<i class='fas fa-download'></i>";
+};
+
+
 $(document).on("click", "#ValidateGTFS", function () {
 	$('#ValidateModal').modal('show');
 	var GoogleTransit = 0;
@@ -45,29 +57,75 @@ var table = new Tabulator("#reports-table", {
 	ajaxURL: `${APIpath}app/gtfs/validate/reports`, //ajax URL
 	ajaxLoaderLoading: loaderHTML,
 	placeholder: "No Data Available",
-	autoColumns:true,
+	columns:[
+	    {formatter:"rowSelection", titleFormatter:"rowSelection",width:50, headerSort:false, cellClick:function(e, cell){
+            cell.getRow().toggleSelect();
+          }},
+        {title:"id", field:"id", visible:false, editor:false},
+        {title:"filename", field:"filename", visible:true, editor:false},
+        {
+            formatter: viewIcon, align: "center", title: "View", headerSort: false, tooltip: "View this report", width:100,cellClick: function (e, cell) {
+                var row = cell.getRow();
+                selectedrow = row.getData();
+                console.log(selectedrow.id);
+                window.open(`${APIpath}app/gtfs/validate/report/${selectedrow.id}`, selectedrow.id,"height=600,width=600,modal=yes,alwaysRaised=yes");
+            }
+	    },
+	    {
+            formatter: downloadIcon, align: "center", title: "Download", headerSort: false, tooltip: "Download this report", width:150,cellClick: function (e, cell) {
+                var row = cell.getRow();
+                selectedrow = row.getData();
+                downloadreport(selectedrow.id);
+            }
+	    },
+        {
+            formatter: trashIcon, align: "center", title: "Delete", headerSort: false, tooltip: "Delete this report", width:100,cellClick: function (e, cell) {
+                var row = cell.getRow();
+                selectedrow = row.getData();
+                deletereport(selectedrow.id);
+                cell.getRow().delete();
+            }
+	    }
+    ],
 	ajaxError: function (xhr, textStatus, errorThrown) {
-		console.log('GET request to agency failed.  Returned status of: ' + errorThrown);
+		console.log('GET request to API/app/gtfs/validate/reports failed.  Returned status of: ' + errorThrown);
 	},
-//	dataEdited: function (data) {
-//		// The dataEdited callback is triggered whenever the table data is changed by the user. Triggers for this include editing any cell in the table, adding a row and deleting a row.
-//		$('#saveAgencyButton').removeClass().addClass('btn btn-primary');
-//		$('#saveAgencyButton').prop('disabled', false);
-//	},
-//	rowUpdated:function(row){
-//		// The rowUpdated callback is triggered when a row is updated by the updateRow, updateOrAddRow, updateData or updateOrAddData, functions.
-//		$('#saveAgencyButton').removeClass().addClass('btn btn-primary');
-//		$('#saveAgencyButton').prop('disabled', false);
-//	},
-//	dataLoaded: function (data) {
-//		// parse the first row keys if data exists.
-//		if (data.length > 0) {
-//			AddExtraColumns(Object.keys(data[0]), GTFSDefinedColumns, table);
-//		}
-//		else {
-//			console.log("No data so no columns");
-//		}
-//		var NumberofRows = data.length + ' row(s)';
-//		$("#NumberofRows").html(NumberofRows);
-//	}
+	ajaxResponse:function(url, params, response){
+        //url - the URL of the request
+        //params - the parameters passed with the request
+        //response - the JSON object returned in the body of the response.
+        return response.files; //return the tableData property of a response json object
+    }
 });
+
+function downloadreport(reportid) {
+    console.log('download');
+    $.ajax({
+        url: `${APIpath}app/gtfs/validate/report/${reportid}`,
+        success: download.bind(true, "text/html", `${reportid}.html`)
+    });
+}
+
+function deletereport(reportid) {
+    var pw = $("#password").val();
+        if (!pw) {
+            $.toast({
+                title: 'Delete report',
+                subtitle: 'No password provided.',
+                content: 'Please enter the password.',
+                type: 'error',
+                delay: 5000
+            });
+            shakeIt('password'); return;
+        }
+    $.get( `${APIpath}app/gtfs/validate/report/remove/${reportid}?pw=${pw}`, function() {
+      $.toast({
+                title: 'Delete report',
+                subtitle: 'Success.',
+                content: 'Remove report.',
+                type: 'success',
+                delay: 5000
+            });
+    });
+
+}
