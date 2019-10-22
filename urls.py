@@ -25,38 +25,37 @@ from settings import STATIC_ROOT, exportFolder
 from utils.tables import tableReadSave, tableColumn
 
 url_patterns = [
-        #(r"/API/data", APIHandler),
         (r"/API/app/config", AppConfig),
         (r"/API/app/stats", Appstats),
         (r"/API/app/database/blank",AppDatabaseBlank),
         (r"/API/app/database/gtfs/import",AppDatabaseGTFSImport),
-        (r"/API/allStops", allStops),
-        (r"/API/allStopsKeyed", allStopsKeyed),
-        (r"/API/routes", routes),
-        #(r"/API/fareAttributes", fareAttributes),
-        #(r"/API/fareRulesPivoted", fareRulesPivoted),
-        (r"/API/agency", agency),
-        (r"/API/calendar", calendar),
-        # TODO: Replace(r"/API/sequence", sequence),
-        # (r"/API/trips", trips),
-        (r"/API/stopTimes", stopTimes),
-        (r"/API/routeIdList", routeIdList),
-        (r"/API/tripIdList", tripIdList),
-        # TODO: Replace(r"/API/serviceIds", serviceIds),
+        # TODO: REMOVE (r"/API/allStops", allStops),
+        # TODO: REMOVE (r"/API/allStopsKeyed", allStopsKeyed),
+        # TODO: REMOVE  (r"/API/routes", routes),
+        # TODO: REMOVE (r"/API/fareAttributes", fareAttributes),
+        # TODO: REMOVE (r"/API/fareRulesPivoted", fareRulesPivoted),
+        # TODO: REMOVE (r"/API/agency", agency),
+        # TODO: REMOVE (r"/API/calendar", calendar),
+        # TODO: REMOVE (r"/API/sequence", sequence),
+        # TODO: REMOVE (r"/API/trips", trips),
+        # TODO: REMOVE (r"/API/stopTimes", stopTimes),
+        # TODO: REMOVE (r"/API/routeIdList", routeIdList),
+        # TODO: REMOVE (r"/API/tripIdList", tripIdList),
+        # TODO: REMOVE (r"/API/serviceIds", serviceIds),
 
         (r"/API/commitExport", commitExport),
         (r"/API/pastCommits", pastCommits),
-        #(r"/API/gtfsImportZip", gtfsImportZip),
-        # TODO: Replace(r"/API/XMLUpload", XMLUpload),
-        # TODO: Replace(r"/API/XMLDiagnose", XMLDiagnose),
-        # TODO: Replace(r"/API/stations", stations),
-        # TODO: Replace(r"/API/fareChartUpload", fareChartUpload),
-        # TODO: Replace(r"/API/xml2GTFS", xml2GTFS),
-        # TODO: Replace(r"/API/gtfsBlankSlate", gtfsBlankSlate),
-        # TODO: Replace(r"/API/translations", translations),
-        #TODO: REMOVE (r"/API/shapesList", shapesList),
-        (r"/API/allShapesList", allShapesList),
-        (r"/API/shape", shape),
+        # TODO: REMOVE (r"/API/gtfsImportZip", gtfsImportZip),
+        # TODO: REMOVE (r"/API/XMLUpload", XMLUpload),
+        # TODO: REMOVE (r"/API/XMLDiagnose", XMLDiagnose),
+        # TODO: REMOVE (r"/API/stations", stations),
+        # TODO: REMOVE (r"/API/fareChartUpload", fareChartUpload),
+        # TODO: REMOVE (r"/API/xml2GTFS", xml2GTFS),
+        # TODO: REMOVE e(r"/API/gtfsBlankSlate", gtfsBlankSlate),
+        # TODO: REMOVE (r"/API/translations", translations),
+        # TODO: REMOVE (r"/API/shapesList", shapesList),
+        # TODO: REMOVE (r"/API/allShapesList", allShapesList),
+        # TODO: REMOVE (r"/API/shape", shape),
         # TODO: Replace(r"/API/listAll", listAll),
         # TODO: Replace(r"/API/zoneIdList", zoneIdList),
         # TODO: Replace(r"/API/diagnoseID", diagnoseID),
@@ -64,8 +63,8 @@ url_patterns = [
         # TODO: Replace(r"/API/replaceID", replaceID),
         # TODO: Replace(r"/API/hydGTFS", hydGTFS),
         # TODO: RMOVE (r"/API/frequencies", frequencies),
-        (r"/API/tableReadSave", tableReadSave),
-        (r"/API/tableColumn", tableColumn),
+        # TODO: REMOVE (r"/API/tableReadSave", tableReadSave),
+        # TODO: REMOVE (r"/API/tableColumn", tableColumn),
         (r"/API/gtfs/shapes", gtfsshape),
         # New API Calls
         (r"/API/gtfs/agency", gtfsagency),
@@ -128,21 +127,8 @@ url_patterns = [
         (r"/API/app/gtfs/validate/reports", pastreportsgtfsvalidate),
         (r"/API/app/gtfs/validate/report/remove/(.*)", deletereportsgtfsvalidate),
         (r"/API/app/gtfs/validate/report/(.*)", getreportsgtfsvalidate),
-
-        #(r"/API/idList", idList),
+        # Allow access to the exportfolder.
         (r"/export/(.*)", tornado.web.StaticFileHandler, {"path": exportFolder}),
+        # Pass it to e default staticfilehandler.
         (r"/(.*)", tornado.web.StaticFileHandler, {"path": STATIC_ROOT, "default_filename": "index.html"})
     ]
-
-# Try to make a api
-# /api/gtfs/agency (Get all agencies)
-# /api/gtfs/agency/list/id get list of agency_id's
-# /api/gtfs/agency/list/idname get list of agency_id's and name's
-# /api/gtfs/agency/{agency_id} Get agency by agency_id
-
-# All gtfs based here /API/gtfs/*
-# All app code api here /API/app/* (stats)
-# All app import here /API/app/import/*
-# All app export here /API/app/export/*
-# All hrml specific code: /API/hrml/*
-# All krml specific code: /API/krml/*

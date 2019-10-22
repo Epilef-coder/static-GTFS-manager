@@ -195,7 +195,7 @@ function saveAgency() {
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {
 		if (xhr.status === 200) {
-			console.log('Successfully sent data via POST to server API/tableReadSave table=agency, response received: ' + xhr.responseText);
+			console.log('Successfully sent data via POST to server API/gtfs/agency table=agency, response received: ' + xhr.responseText);
 			$.toast({
 				title: 'Save Agency',
 				subtitle: 'Success',
@@ -207,7 +207,7 @@ function saveAgency() {
 			$('#saveAgencyButton').prop('disabled', true);
 			//$('#agencySaveStatus').html('<span class="alert alert-success">Success. Message: ' + xhr.responseText + '</span>');
 		} else {
-			console.log('Server POST request to API/tableReadSave table=agency failed. Returned status of ' + xhr.status + ', reponse: ' + xhr.responseText);
+			console.log('Server POST request to API/gtfs/agency failed. Returned status of ' + xhr.status + ', reponse: ' + xhr.responseText);
 			$.toast({
 				title: 'Save Agency',
 				subtitle: 'Failed to save',

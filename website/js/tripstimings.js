@@ -557,10 +557,10 @@ function getPythonStopTimes(trip_id, route_id, direction) {
 
 function getPythonRoutes() {
 	let xhr = new XMLHttpRequest();
-	xhr.open('GET', APIpath + `tableReadSave?table=routes`);
+	xhr.open('GET', APIpath + `gtfs/route`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
-			console.log(`GET call to Server API/tableReadSave table=routes succesful.`);
+			console.log(`GET call to Server API/gtfs/route.`);
 			var data = JSON.parse(xhr.responseText);
 			populateRouteSelect(data);
 			globalRoutes = data; // save to global variable; needed for trip addtion
@@ -627,7 +627,7 @@ function saveTimings() {
 
 	var timingsData = stoptimesTable.getData();
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}tableReadSave?pw=${pw}&table=stop_times&key=trip_id&value=${trip_id}`);
+	xhr.open('POST', `${APIpath}gtfs/stoptimes/${trip_id}?pw=${pw}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {
@@ -676,7 +676,7 @@ function saveTrips() {
 	});
 
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', `${APIpath}tableReadSave?pw=${pw}&table=trips&key=route_id&value=${route_id}`);
+	xhr.open('POST', `${APIpath}gtfs/trips/route/${route_id}?pw=${pw}`);
 	xhr.withCredentials = true;
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {
@@ -698,7 +698,7 @@ function saveTrips() {
 				type: 'error',
 				delay: 4000
 			});
-			console.log('Server POST request to API/tableReadSave failed. Returned status of ' + xhr.status + ', reponse: ' + xhr.responseText);
+			console.log(`Server POST request to API/gtfs/trips/route/${route_id} failed. Returned status of ` + xhr.status + ', reponse: ' + xhr.responseText);
 		}
 	}
 	console.log('Sending POST request, please wait for callback.');
@@ -944,15 +944,15 @@ function resetTimings() {
 function getPythonStopsKeyed() {
 	// loading KEYED JSON of the stops.txt data, keyed by stop_id.
 	let xhr = new XMLHttpRequest();
-	xhr.open('GET', `API/tableReadSave?table=stops`);
+	xhr.open('GET', `${APIpath}gtfs/stop`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
-			console.log(`Loaded data from Server API/allStopsKeyed .`);
+			console.log(`Loaded data from Server API/gtfs/stop .`);
 			var data = JSON.parse(xhr.responseText);
 			allStopsKeyed = data;
 		}
 		else {
-			console.log('Server request to API/tableReadSave failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
+			console.log('Server request to API/gtfs/stop failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
 		}
 	};
 	xhr.send();

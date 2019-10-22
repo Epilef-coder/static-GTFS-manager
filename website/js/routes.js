@@ -45,7 +45,7 @@ var table = new Tabulator("#routes-table", {
 	],
 	dataLoaded:function(data) {
 		// this fires after the ajax response and after table has loaded the data. 
-		console.log(`GET request to tableReadSave table=routes successfull.`);
+		console.log(`GET request to API/gtfs/route successfull.`);
 	},
 	ajaxError:function(xhr, textStatus, errorThrown){
 		console.log('GET request to tableReadSave table=routes failed.  Returned status of: ' + errorThrown);

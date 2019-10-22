@@ -399,7 +399,7 @@ function saveCalendar() {
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {
 		if (xhr.status === 200) {
-			console.log('<span class="alert alert-success">Successfully sent data via POST to server /API/tableReadSave for table=calendar, response received: ' + xhr.responseText + '</span>');
+			console.log('<span class="alert alert-success">Successfully sent data via POST to server /API/gtfs/calendar, response received: ' + xhr.responseText + '</span>');
 			$.toast({
 				title: 'Save Calendar',
 				subtitle: 'Success',
@@ -409,7 +409,7 @@ function saveCalendar() {
 			});
 			
 		} else {
-			console.log('Server POST request to API/tableReadSave for table=calendar failed. Returned status of ' + xhr.status + ', reponse: ' + xhr.responseText );
+			console.log('Server POST request to API/gtfs/calendar failed. Returned status of ' + xhr.status + ', reponse: ' + xhr.responseText );
 			$.toast({
 				title: 'Save Calendar',
 				subtitle: 'Error',
@@ -483,7 +483,7 @@ $("#saveCalendarDatesButton").on("click", function(){
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 	xhr.onload = function () {
 		if (xhr.status === 200) {
-			console.log('<span class="alert alert-success">Successfully sent data via POST to server /API/tableReadSave&table=calendar_dates, response received: ' + xhr.responseText + '</span>');
+			console.log('<span class="alert alert-success">Successfully sent data via POST to server /API/gtfs/calendar_dates, response received: ' + xhr.responseText + '</span>');
 			$.toast({
 				title: 'Save Calendar dates',
 				subtitle: 'Success',
@@ -492,7 +492,7 @@ $("#saveCalendarDatesButton").on("click", function(){
 				delay: 5000
 			});
 		} else {
-			console.log('Server POST request to API/tableReadSave failed. Returned status of ' + xhr.status + ', reponse: ' + xhr.responseText );
+			console.log('Server POST request to API/gtfs/calendar_dates failed. Returned status of ' + xhr.status + ', reponse: ' + xhr.responseText );
 			$.toast({
 				title: 'Save Calendar dates',
 				subtitle: 'Error',

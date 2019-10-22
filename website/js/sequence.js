@@ -1163,7 +1163,7 @@ function getPythonRoutes() {
 	xhr.open('GET', `${APIpath}gtfs/route`);
 	xhr.onload = function () {
 		if (xhr.status === 200) { //we have got a Response
-			console.log(`GET call to Server API/tableReadSave?table=routes succesful.`);
+			console.log(`GET call to Server API/gtfs/route succesful.`);
 			var data = JSON.parse(xhr.responseText);
 
 			var select2items = $.map(data, function (obj) {

@@ -47,34 +47,34 @@ class gtfstripsbyroute(tornado.web.RequestHandler):
             end = time.time()
             logmessage("/API/gtfs/trips/route/{} GET call took {} seconds.".format(route_id, round(end-start,2)))
 
-    def post(self):
-        start  = time.time() # time check, from https://stackoverflow.com/a/24878413/4355695
-        # ${APIpath}trips?pw=${pw}&route=${trip_id}
-        logmessage('\ntrips POST call')
-        pw = self.get_argument('pw',default='')
-        if not decrypt(pw):
-            self.set_status(400)
-            self.write("Error: invalid password.")
-            return
-        trip_id = self.get_argument('route',default='')
-        if not len(trip_id) :
-            self.set_status(400)
-            self.write("Error: invalid trip_id.")
-            return
-        # received text comes as bytestring. Convert to unicode using .decode('UTF-8') from https://stackoverflow.com/a/6273618/4355695
-        tripsData = json.loads( self.request.body.decode('UTF-8') )
+    def post(self, route_id=None):
+        if route_id:
+            start  = time.time() # time check, from https://stackoverflow.com/a/24878413/4355695
+            # /API/gtfs/trips/route/{route_id}
+            logmessage('\n/API/gtfs/trips/route/{} POST call'.format(route_id))
+            pw = self.get_argument('pw',default='')
+            if not decrypt(pw):
+                self.set_status(400)
+                self.write("Error: invalid password.")
+                return
+            if not len(route_id) :
+                self.set_status(400)
+                self.write("Error: invalid route_id.")
+                return
+            # received text comes as bytestring. Convert to unicode using .decode('UTF-8') from https://stackoverflow.com/a/6273618/4355695
+            tripsData = json.loads( self.request.body.decode('UTF-8') )
 
-        # heres where all the action happens:
-        result = replaceTableDB('trips', tripsData, key='trip_id', value=trip_id)
+            # heres where all the action happens:
+            result = replaceTableDB('trips', tripsData, key='route_id', value=route_id)
 
-        if result:
-            self.write('Saved trips data for route '+trip_id)
-        else:
-            self.set_status(400)
-            self.write("Some error happened.")
+            if result:
+                self.write('Saved trips data for route '+route_id)
+            else:
+                self.set_status(400)
+                self.write("Some error happened.")
 
-        end = time.time()
-        logmessage("trips POST call took {} seconds.".format(round(end-start,2)))
+            end = time.time()
+            logmessage("/API/gtfs/trips/route/{} POST call took {} seconds.".format(route_id,round(end-start,2)))
         
 
 class gtfstrips(tornado.web.RequestHandler):

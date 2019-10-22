@@ -47,7 +47,7 @@ var table = new Tabulator("#frequencies-table", {
 		
 	],
 	ajaxError:function(xhr, textStatus, errorThrown){
-		console.log('GET request to tableReadSave table=frequencies failed.  Returned status of: ' + errorThrown);
+		console.log('GET request to API/gtfs/frequencies failed.  Returned status of: ' + errorThrown);
 	},
 	dataEdited:function(data){
 		$('#saveFreqButton').removeClass().addClass('btn btn-primary');
@@ -231,7 +231,7 @@ function getPythonRoutesList() {
 		  });		
 	})
 	.fail( function() {
-		console.log('GET request to /api/gtfs/route/list/idname table=routes failed.')
+		console.log('GET request to /api/gtfs/route/list/idname failed.')
 	});
 }
 

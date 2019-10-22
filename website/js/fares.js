@@ -109,11 +109,11 @@ var fareattributes = new Tabulator("#fare-attributes-table", {
 		console.log('Changed fare attribute for ' + fare_id + ', ' + field + ': ' + cell.getOldValue() + ' to ' + cell.getValue());
 	},
 	ajaxError: function (xhr, textStatus, errorThrown) {
-		console.log('GET request to tableReadSave?table=fare_attributes failed.  Returned status of: ' + errorThrown);
+		console.log('GET request to /API/gtfs/fareattributes.  Returned status of: ' + errorThrown);
 	},
 	dataLoaded: function (data) {
 		//fareattributes.setData();
-		console.log('GET request to tableReadSave?table=fare_attributes successful.');
+		console.log('GET request to /API/gtfs/fareattributes successful.');
 		UpdateFareID(data);
 		if (data.length > 0) {
 			AddExtraColumns(Object.keys(data[0]), GTFSDefinedColumnsFareAttributes, fareattributes);

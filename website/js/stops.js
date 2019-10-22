@@ -103,7 +103,7 @@ var table = new Tabulator("#stops-table", {
 	},
 	dataLoaded: function (data) {
 		// this fires after the ajax response and after table has loaded the data. 
-		console.log(`Loaded all stops data from Server API/tableReadSave table=stops .`);
+		console.log(`Loaded all stops data from Server API/gtfs/stop .`);
 		reloadData('firstTime');
 		// create new optons for parentstation selection
 		// Filter only stattions
