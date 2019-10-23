@@ -132,3 +132,27 @@ class gtfstripslistids(tornado.web.RequestHandler):
         self.write(json.dumps(List))
         end = time.time()
         logmessage("\n/API/gtfs/trips/list/id GET call took {} seconds.".format(round(end - start, 2)))
+
+
+class gtfstripslisttripswithstoptimes(tornado.web.RequestHandler):
+    def get(self, route_id=None):
+        # /API/gtfs/trips/list/tripswithstoptimes/{route_id}
+        # TODO: OPTIMIZE THIS CODE CALLING SPECIAL len function instead of reading all the data
+        if route_id:
+            start = time.time()
+            jsoncontent = []
+            logmessage('\n/API/gtfs/trips/list/tripswithstoptimes/{} GET call'.format(route_id))
+            listCollector = set()
+            listCollector.update(readColumnDB('trips', 'trip_id','route_id',route_id))
+            # to do: find out why this function is only looking at stops table
+            List = list(listCollector)
+            List.sort()
+            print(list)
+            for trip_id in List:
+                stop_timeslist = readTableDB('stop_times', key='trip_id', value=trip_id)
+                items = len(stop_timeslist)
+                if items != 0:
+                    jsoncontent.append({'tripd_id': trip_id})
+            self.write(json.dumps(jsoncontent))
+            end = time.time()
+            logmessage("\n/API/gtfs/trips/list/tripswithstoptimes/{} GET call took {} seconds.".format(route_id,round(end - start, 2)))

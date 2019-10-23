@@ -15,13 +15,13 @@ class defaultsequencebyroute(tornado.web.RequestHandler):
     def get(self, route_id=None):
         if route_id:
             start = time.time()
-            logmessage('\n/API/defaultsequence/{} GET call'.format(route_id))
+            logmessage('\n/API/defaultsequence/route/{} GET call'.format(route_id))
             sequence = sequenceFull(sequenceDBfile, route_id)
             returnjson = {'sequence': sequence}
-            self.write(returnjson)
+            self.write(json.dumps(returnjson))
             # time check, from https://stackoverflow.com/a/24878413/4355695
             end = time.time()
-            logmessage("/API/defaultsequence/{} GET call took {} seconds.".format(route_id, round(end - start, 2)))
+            logmessage("/API/defaultsequence/route/{} GET call took {} seconds.".format(route_id, round(end - start, 2)))
 
 
 class defaultsequence(tornado.web.RequestHandler):

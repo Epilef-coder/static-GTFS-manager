@@ -89,6 +89,7 @@ url_patterns = [
         (r"/API/gtfs/calendar_dates/(.*)", gtfscalendardates),
         (r"/API/gtfs/trips", gtfstrips),
         (r"/API/gtfs/trips/list/id", gtfstripslistids),
+        (r"/API/gtfs/trips/list/tripswithstoptimes/(.*)", gtfstripslisttripswithstoptimes),
         (r"/API/gtfs/trips/route/(.*)", gtfstripsbyroute),
         (r"/API/gtfs/trips/(.*)", gtfstrips),
         (r"/API/gtfs/stoptimes", gtfsstoptimes),

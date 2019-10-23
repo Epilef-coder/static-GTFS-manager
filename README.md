@@ -42,7 +42,7 @@ Psst! Password is `program`.
 
 2. That's it, that should start the program! A dos box should open up giving console messages, and in a few seconds a new tab should open in your system's default web browser with the program loaded.
 
-3. There will probably be a Windows Firewall popup. Click OK or cancel.. this program doesn't do any to-and-fro communication over internet, that's just a default question that comes up when a server is activated. (In our case we're creating a portable web server for the front-end and back-end partd of the program to communicate). It does need internet for loading the background tiles on web maps, but other than that the program can run without internet connection.
+3. There will probably be a Windows Firewall popup. Click OK or cancel.. this program doesn't do any to-and-from communication over internet, that's just a default question that comes up when a server is activated. (In our case we're creating a portable web server for the front-end and back-end partd of the program to communicate). It does need internet for loading the background tiles on web maps, but other than that the program can run without internet connection.
 
 4. More notes on this, including some troubleshooting and watchouts, **[on the wiki](https://github.com/WRI-Cities/static-GTFS-manager/wiki/Standalone-Windows-Executable)**.
 
