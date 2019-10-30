@@ -157,7 +157,8 @@ class gtfsshape(tornado.web.RequestHandler):
             end = time.time()
             logmessage("/API/gtfs/shape/{} GET call took {} seconds.".format(shape_id,round(end-start, 2)))
 
-    def post(self):
+    def post(self, shape_id=None):
+        if shape_id:
             # ${APIpath}shape?pw=${pw}&route=${route_id}&id=${shape_id}&reverseFlag=${reverseFlag}
             start = time.time()
             logmessage('\nshape POST call')
@@ -166,17 +167,16 @@ class gtfsshape(tornado.web.RequestHandler):
                     self.set_status(400)
                     self.write("Error: invalid password.")
                     return
-            shapePrefix = self.get_argument('id', default='')
-            logmessage(shapePrefix)
+            logmessage(shape_id)
 
-            if not (len(shapePrefix)):
+            if not (len(shape_id)):
                     self.set_status(400)
                     self.write("Error: Invalid route or shape id prefix.")
                     return
 
             data = json.loads(self.request.body.decode('UTF-8'))
 
-            replaceTableDB('shapes', data, key='shape_id', value=shapePrefix)
+            replaceTableDB('shapes', data, key='shape_id', value=shape_id)
 
             self.write('Saved to shapes table in DB.')
 

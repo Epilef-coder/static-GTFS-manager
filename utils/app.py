@@ -36,9 +36,11 @@ def GTFSstats():
         # if there are excess agencies, mention only first two and then put number of remaining
 
         content += 'Agency: {}<br>'.format(', '.join(agencyList))
+        jsoncontent['agency'] = agencyList
     else:
         content += 'Agency: none found.<br>'
-    jsoncontent['agency'] = agencyList
+        jsoncontent['agency'] = 'None'
+
     jsoncontent['files'] = []
     filenames = findFiles(dbFolder, ext='.h5', prefix=None, chunk='all')
 

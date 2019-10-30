@@ -535,18 +535,18 @@ function EditTrip(row) {
 						if (defaultsequence.data.length > 0) {
 							console.log('defaultsequence.data > 0')
 							if (defaultsequence.data[row.direction_id]) {
-								CreateTripModal(true);
+								CreateTripModal(true, row.route_id);
 							}
 							else {
-								CreateTripModal(false);
+								CreateTripModal(false,row.route_id);
 							}
 						}
 						else {
-							CreateTripModal(false);
+							CreateTripModal(false,row.route_id);
 						}
 					})
 					.fail(function () {
-						CreateTripModal(false);
+						CreateTripModal(false,row.route_id);
 					})
 			}
 		})
@@ -574,10 +574,12 @@ function ViewTrip(trip_id) {
 }
 
 
-function CreateTripModal(defaultsequence) {
+function CreateTripModal(defaultsequence, trip_id) {
 	// This function will popup the create stop_times modal with the correct html for the selection.
 	// Empty the options
+	// Check for the copy if there are other trips to copy. 
 	$('#StoptimesSources').empty();
+	// Default options
 	if (defaultsequence) {
 		var CheckboxHTML = `<div class="form-check">
 				<input class="form-check-input" type="radio" id="CreateTrip_Default" name="CreateStopTimes" value="DEFAULT">
@@ -587,29 +589,40 @@ function CreateTripModal(defaultsequence) {
 				</div>`;
 		$('#StoptimesSources').append(CheckboxHTML);
 	}
-	// Always allow the use of empty data
 	var CheckboxHTML = `<div class="form-check">
-			<input class="form-check-input" type="radio" id="CreateTrip_Empty" name="CreateStopTimes" value="NEW">
-			<label class="form-check-label" for="CreateTrip_Empty">
-				Create a empty list, i want to create custom entries
-			</label>
-			</div>`;
+	<input class="form-check-input" type="radio" id="CreateTrip_Empty" name="CreateStopTimes" value="NEW">
+	<label class="form-check-label" for="CreateTrip_Empty">
+		Create a empty list, i want to create custom entries
+	</label>
+	</div>`;
 	$('#StoptimesSources').append(CheckboxHTML);
-	var CheckboxHTML = `<div class="form-check">
-		<input class="form-check-input" type="radio" id="CreateTrip_Copy" name="CreateStopTimes" value="COPY">
-		<label class="form-check-label" for="CreateTrip_Copy">
-			Copy a trip based on the selected trip:  <select class="form-control" id="CreateTrip_Copy_Select">
-			<option>1</option>
-			<option>2</option>
-			<option>3</option>
-			<option>4</option>
-			<option>5</option>
-			</select>
-		</label>
-		</div>`;
-	$('#StoptimesSources').append(CheckboxHTML);
-	// TODO: Create a selectbox to use for the selection of a trip that has stoptimes entry's
-	$('#CreateStopTimesModal').modal('show');
+	$.get(`${APIpath}gtfs/trips/list/tripswithstoptimes/${trip_id}`)
+	.done(function (result) {
+		stoptimes = JSON.parse(result);		
+		if (stoptimes.length > 0) {
+			// Add the html layout without options
+			var CheckboxHTML = `<div class="form-check">
+						<input class="form-check-input" type="radio" id="CreateTrip_Copy" name="CreateStopTimes" value="COPY">
+						<label class="form-check-label" for="CreateTrip_Copy">
+							Copy a trip based on the selected trip:  <select class="form-control" id="CreateTrip_Copy_Select"><option value="">Select a trip to copy</option>					
+							</select>
+						</label>
+						</div>`;
+					$('#StoptimesSources').append(CheckboxHTML);
+			// Loop through all the trips that arre possible to copy.
+			stoptimes.forEach(function(copytrips){				
+				var newOption = new Option(copytrips.trip_id, copytrips.trip_id, false, false);
+				$('#CreateTrip_Copy_Select').append(newOption).trigger('change');
+			});
+		}
+		// Show the modal 
+		$('#CreateStopTimesModal').modal('show');		
+	})
+	.fail(function () {
+		// If the API request fals always show the modal because we have possible a default sequence and a empty trip list.
+		$('#CreateStopTimesModal').modal('show');
+		
+	})
 }
 
 function CreateNewStopTimes() {
@@ -641,7 +654,7 @@ function CreateNewStopTimes() {
 function StopTimesbasedonDefaultSequence(route_id, direction_id) {
 	$.get(`${APIpath}defaultsequence/route/${route_id}`)
 		.done(function (result) {
-			defaultsequence = result;
+			defaultsequence = JSON.parse(result);
 			console.log(defaultsequence);
 			if (defaultsequence.sequence[direction_id]) {
 				stoptimesTable.clearData();
@@ -691,16 +704,22 @@ function StopTimesbasedonCopyofTrip(selected_trip_id, current_trip_id) {
 			// TODO: Try to edit the times hen copy the orginal source stop_times.
 			stop_times_source = JSON.parse(result);
 			stoptimesTable.clearData();
-			stoptimesTable.setData(stop_times_source);
+			// fastest ways to replace the trip_id is with regex
+			//https://stackoverflow.com/questions/1144783/how-to-replace-all-occurrences-of-a-string
+			var old = JSON.stringify(stop_times_source).replace(new RegExp(selected_trip_id, 'g'), current_trip_id); //convert to JSON string
+			var newArray = JSON.parse(old); //convert back to array
+			// update the table.
+			stoptimesTable.setData(newArray);
 			stoptimesTable.redraw();
 			// Show the tab
 			$('#myTab a[href="#stoptimes"]').tab('show');
+			// Close the modal.
+			$('#CreateStopTimesModal').modal('hide');
 		})
 		.fail(function () {
 
 		})
 }
-
 
 
 function CopyArrivaltoDeparture() {
@@ -728,61 +747,7 @@ function getPythonTrips(route_id) {
 	});
 	// Let tabulator do the api requests.
 	tripsTable.setData(`${APIpath}gtfs/trips/route/${route_id}`);
-	$("#newTripHTML").show('slow');
-
-	// let xhr = new XMLHttpRequest();
-	// //make API call from with this as get parameter name
-	// xhr.open('GET', `${APIpath}defaultsequence/${route_id}`);
-	// xhr.onload = function () {
-	// 	if (xhr.status === 200) { //we have got a Response
-	// 		console.log(`Loaded trips data for the chosen route from Server API/trips .`);
-	// 		var data = JSON.parse(xhr.responseText);
-	// 		//tripsTable.setData(data.trips);
-	// 		$.toast({
-	// 			title: 'Trips',
-	// 			subtitle: 'Loaded',
-	// 			content: 'Loaded trips for route ' + route_id,
-	// 			type: 'success',
-	// 			delay: 5000
-	// 		});
-
-	// 		// resetting save to DB button if a new set of trips has been loaded from DB, clearing status text.
-	// 		setSaveTrips(false);
-
-	// 		// SEQUENCE:
-	// 		sequenceHolder = data.sequence;
-
-	// 		// if (!sequenceHolder) {
-	// 		// 	$("#newTripHTML").hide('slow');
-	// 		// 	$("#shapeApplyHTML").hide('slow');
-	// 		// 	$("#noSequenceAlert").show('slow');
-	// 		//} else 
-	// 		$("#newTripHTML").show('slow');
-
-	// 		// // Shape applying part
-	// 		// var content = '';
-	// 		// if (sequenceHolder.shape0)
-	// 		// 	content += 'Onward: <b>' + sequenceHolder.shape0 + '</b>';
-
-	// 		// if (sequenceHolder.shape1)
-	// 		// 	content += '<br>Return: <b>' + sequenceHolder.shape1 + '</b>';
-
-	// 		// $("#defaultShapesInfo").html(content);
-	// 		// if (sequenceHolder.shape0 || sequenceHolder.shape1)
-	// 		// 	$("#shapeApplyHTML").show('slow');
-	// 	}
-	// 	else {
-	// 		console.log('Server request to API/trips failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
-	// 		$.toast({
-	// 			title: 'Trips',
-	// 			subtitle: 'Loading',
-	// 			content: 'Could not load trips data from server. Message: ' + xhr.responseText,
-	// 			type: 'error',
-	// 			delay: 5000
-	// 		});
-	// 	}
-	// };
-	// xhr.send();
+	$("#newTripHTML").show('slow');	
 }
 
 // function getPythonStopTimes(trip_id, route_id, direction) {

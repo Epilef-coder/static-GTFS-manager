@@ -152,7 +152,7 @@ class gtfstripslisttripswithstoptimes(tornado.web.RequestHandler):
                 stop_timeslist = readTableDB('stop_times', key='trip_id', value=trip_id)
                 items = len(stop_timeslist)
                 if items != 0:
-                    jsoncontent.append({'tripd_id': trip_id})
+                    jsoncontent.append({'trip_id': trip_id})
             self.write(json.dumps(jsoncontent))
             end = time.time()
             logmessage("\n/API/gtfs/trips/list/tripswithstoptimes/{} GET call took {} seconds.".format(route_id,round(end - start, 2)))

@@ -96,6 +96,7 @@ url_patterns = [
         (r"/API/gtfs/stoptimes/(.*)", gtfsstoptimes), # Get stoptimes by trip_id
         (r"/API/gtfs/shape", gtfsshape),
         (r"/API/gtfs/shape/list/id", gtfsshapelistids),
+        (r"/API/gtfs/shape/list/all", allShapesList),
         (r"/API/gtfs/shape/list/route/(.*)", gtfsshapeslistbyroute),
         (r"/API/gtfs/shape/(.*)", gtfsshape),
         (r"/API/defaultsequence/route/(.*)", defaultsequencebyroute),  # Custom defaultsequence api's

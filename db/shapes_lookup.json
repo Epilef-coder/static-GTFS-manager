@@ -1,12 +1,4 @@
 {
-  "E1_0": "shapes_1.h5",
-  "E1_1": "shapes_1.h5",
-  "E2_0": "shapes_1.h5",
-  "E2_1": "shapes_1.h5",
-  "C1_0": "shapes_1.h5",
-  "C1_1": "shapes_1.h5",
-  "f1_0": "shapes_1.h5",
-  "f1_1": "shapes_1.h5",
-  "c1_0": "shapes_1.h5",
-  "c1_1": "shapes_1.h5"
+  "001": "shapes_1.h5",
+  "002": "shapes_1.h5"
 }

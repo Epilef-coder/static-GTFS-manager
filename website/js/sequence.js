@@ -544,7 +544,7 @@ function saveSequence() {
 
 	var chosenShape0 = $('#shapes0List').val();
 	var chosenShape1 = $('#shapes1List').val();
-	if (!(chosenShape0.length && chosenShape1.length)) {
+	if (!(chosenShape0 && chosenShape1)) {
 		if (!confirm('Are you sure you don\'t want to save any shape for the onward and/or return journey direction of this route?\nPress OK to proceed, Cancel to go back and set the shapes first.'))
 			return;
 	}
@@ -654,9 +654,9 @@ function clearSequences() {
 function getPythonAllShapesList() {
 
 	// shorter GET request. from https://api.jquery.com/jQuery.get/
-	var jqxhr = $.get(`${APIpath}allShapesList`, function (data) {
+	var jqxhr = $.get(`${APIpath}gtfs/shape/list/all`, function (data) {
 		globalShapesList = JSON.parse(data);
-		console.log('GET request to API/allShapesList succesful.');
+		console.log('GET request to API/gtfs/shape/list/all succesful.');
 		// console.log('globalShapesList: ' + JSON.stringify(globalShapesList) );
 		if (selected_route_id) {
 			// if a particular route is selected and global variable is holding a value
@@ -1104,15 +1104,17 @@ function convertToGeoJson(filecontent, extension) {
 }
 
 function loadShape(shape_id, whichMap) {
-	// shorter GET request. from https://api.jquery.com/jQuery.get/
-	var jqxhr = $.get(`${APIpath}gtfs/shape/${shape_id}`, function (data) {
-		var shapeArray = JSON.parse(data);
-		console.log('GET request to API/shape succesful.');
-		drawShape(shapeArray, whichMap);
-	})
-		.fail(function () {
-			console.log('GET request to API/shape failed.')
-		});
+	if (shape_id != null) {
+		// shorter GET request. from https://api.jquery.com/jQuery.get/
+		var jqxhr = $.get(`${APIpath}gtfs/shape/${shape_id}`, function (data) {
+			var shapeArray = JSON.parse(data);
+			console.log('GET request to API/shape succesful.');
+			drawShape(shapeArray, whichMap);
+		})
+			.fail(function () {
+				console.log('GET request to API/shape failed.')
+			});
+	}
 }
 
 function drawShape(shapeArray, whichMap) {

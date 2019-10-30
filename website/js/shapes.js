@@ -431,12 +431,27 @@ function OnlineRoute() {
 						rWP2.latLng = L.latLng(searchstopto.stop_lat, searchstopto.stop_lon);
 					}
 					RoutingArrayPoint.push(rWP1);
-					RoutingArrayPoint.push(rWP2); s
+					RoutingArrayPoint.push(rWP2);
 				}
 				break;
 			case "OSRM":
 				// code block
 				OnlineRoutePlanner = L.Routing.osrmv1();
+				rWP1 = new L.Routing.Waypoint;
+				rWP2 = new L.Routing.Waypoint;
+				var depart = stop_times[0];
+				var arrival = stop_times[stop_times.length - 1];
+				var searchstopfrom = allStops.find(x => x.stop_id === depart.stop_id);
+				if (searchstopfrom) {
+					rWP1.latLng = L.latLng(searchstopfrom.stop_lat, searchstopfrom.stop_lon);
+					//from = L.latLng(searchstopfrom.stop_lat, searchstopfrom.stop_lon);
+				}
+				var searchstopto = allStops.find(x => x.stop_id === arrival.stop_id);
+				if (searchstopto) {
+					rWP2.latLng = L.latLng(searchstopto.stop_lat, searchstopto.stop_lon);
+				}
+				RoutingArrayPoint.push(rWP1);
+				RoutingArrayPoint.push(rWP2);
 				break;
 			case "GraphHopper":
 				// code block
@@ -795,11 +810,12 @@ function SaveShape() {
 	}
 	// Clean the table first.
 	shapes_table.clearData();
+	jsondata = [];
 	// add the data to the table	
 	shapearray.forEach(function (shaperow, index) {
-		shapes_table.addData([{ shape_id: shape_id, shape_pt_lat: shaperow.lat, shape_pt_lon: shaperow.lng, shape_pt_sequence: index }], false);
+		jsondata.push({ shape_id: shape_id, shape_pt_lat: shaperow.lat, shape_pt_lon: shaperow.lng, shape_pt_sequence: index });
 	});
-	var data = shapes_table.getData();
+	var data = jsondata//shapes_table.getData();
 	console.log(data);
 	console.log('sending to server via POST');
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting

@@ -72,66 +72,53 @@ var table = new Tabulator("#stops-table", {
 	rowDeselected: function (row) { //when a row is deselected
 		//depopulateFields();
 		map.closePopup();
-	},
-	historyUndo: function (action, component, data) {
-		var message = '';
-		if (action == 'cellEdit') {
-			message = 'Undid cellEdit for ' + component.cell.row.data.stop_id + ', ' + JSON.stringify(data);
-			reloadData();
-			mapPop(component.cell.row.data.stop_id);
-		}
-		else if (action == 'rowDelete') {
-			message = 'Undid rowDelete for ' + data.data.stop_id;
-			reloadData();
-		}
-		else if (action == 'rowAdd') {
-			message = 'Undid rowAdd for ' + data.data.stop_id;
-			reloadData();
-			mapPop(data.data.stop_id);
-		}		
-	},
+	},	
 	cellEditing: function (cell) {
 		// pop up the stop on the map when user starts editing
 		mapPop(cell.getRow().getData().stop_id);
 	},
 	cellEdited: function (cell) {
 		// on editing a cell, display updated info 
-		reloadData();
+		// reloadData();
 		var stop_id = cell.getRow().getData().stop_id; //get corresponding stop_id for that cell. Can also use cell.getRow().getIndex()
 		mapPop(stop_id);		
-		$("#undoredo").show('slow');
+		// $("#undoredo").show('slow');
 	},
 	dataLoaded: function (data) {
 		// this fires after the ajax response and after table has loaded the data. 
 		console.log(`Loaded all stops data from Server API/gtfs/stop .`);
 		reloadData('firstTime');
 		// create new optons for parentstation selection
-		// Filter only stattions
-		var Stations = data.filter(function (stop) {
-			return stop.location_type === "1";
-		});
-		console.log(Stations);
-		var stationsselect2 = $.map(Stations, function (obj) {
-			obj.id = obj.id || obj.stop_id; // replace identifier
-			obj.text = obj.text || obj.stop_name
-			return obj;
-		});
-		console.log(stationsselect2);
-		$("#new_parent_station").select2({
-			placeholder: "Select a parent station",
-			allowClear: true,
-			theme: 'bootstrap4',
-			data: stationsselect2
-		});
-		// parse the first row keys if data exists.
-		if (data.length > 0) {
-			AddExtraColumns(Object.keys(data[0]), GTFSDefinedColumns, table);
-		}
-		else {
-			console.log("No data so no columns");
-		}
-		var NumberofRows = data.length + ' row(s)';
-		$("#NumberofRows").html(NumberofRows);
+		// Filter only stations
+		// if (data.length > 0) {
+		// 	var Stations = data.filter(function (stop) {
+		// 		return stop.location_type === "1";
+		// 	});
+		// 	console.log(Stations);
+		// 	var stationsselect2 = $.map(Stations, function (obj) {
+		// 		obj.id = obj.id || obj.stop_id; // replace identifier
+		// 		obj.text = obj.text || obj.stop_name
+		// 		return obj;
+		// 	});
+		// 	console.log(stationsselect2);
+		// 	$("#new_parent_station").select2({
+		// 		placeholder: "Select a parent station",
+		// 		allowClear: true,
+		// 		theme: 'bootstrap4',
+		// 		data: stationsselect2
+		// 	});
+		// }
+		// // parse the first row keys if data exists.
+		// if (data.length > 0) {
+		// 	AddExtraColumns(Object.keys(data[0]), GTFSDefinedColumns, table);
+		// }
+		// else {
+		// 	console.log("No data so no columns");
+		// }
+		// if (data.length > 0) {
+		// var NumberofRows = data.length + ' row(s)';
+		// $("#NumberofRows").html(NumberofRows);
+		// }
 	},
 	ajaxError: function (xhr, textStatus, errorThrown) {
 		console.log('GET request to tableReadSave table=stops failed.  Returned status of: ' + errorThrown);
@@ -468,21 +455,8 @@ function addTable() {
 		jsonData[gtfscolumnname] = importcolumn;
 	});
 	console.log(jsonData);
-	try {
-		table.addData(jsonData);
-		reloadData();		
-	}
-	catch (e) {
-		console.log("exception caught in updateOrAddRow function call.", e);
-	}
-	
-
-	// switch to first tab. from https://getbootstrap.com/docs/4.0/components/navs/#via-javascript
-
-	setTimeout(function () {
-		table.selectRow(stop_id);
-		//Clean out new value's
-	}, 1000);
+	table.addRow(jsonData);
+	reloadData();	
 
 }
 
