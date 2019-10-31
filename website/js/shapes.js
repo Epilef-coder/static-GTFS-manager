@@ -560,6 +560,8 @@ function OnlineRoute() {
 				OnlineRouteLayer.pm.enable();
 				// Close the modal
 				$('#OnlineRoutingModal').modal('hide');
+				// SELECT the save layer to Online routing
+				$("#shape_save").val('Routing').change();
 			}
 			else {
 				$.toast({

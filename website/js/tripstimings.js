@@ -533,8 +533,9 @@ function EditTrip(row) {
 					.done(function (result) {
 						defaultsequence = JSON.parse(result);
 						if (defaultsequence.data.length > 0) {
-							console.log('defaultsequence.data > 0')
-							if (defaultsequence.data[row.direction_id]) {
+							// Ok the array is there
+							if (defaultsequence.data[row.direction_id].length > 0) {
+								// Ok the array has entries.
 								CreateTripModal(true, row.route_id);
 							}
 							else {
@@ -553,8 +554,6 @@ function EditTrip(row) {
 		.fail(function () {
 			return false;
 		})
-
-
 }
 
 function ViewTrip(trip_id) {
@@ -621,7 +620,6 @@ function CreateTripModal(defaultsequence, trip_id) {
 	.fail(function () {
 		// If the API request fals always show the modal because we have possible a default sequence and a empty trip list.
 		$('#CreateStopTimesModal').modal('show');
-		
 	})
 }
 
@@ -632,8 +630,6 @@ function CreateNewStopTimes() {
 			case "NEW":
 				// Clear the data
 				stoptimesTable.clearData();
-				// Show the tab
-				$('#myTab a[href="#stoptimes"]').tab('show');
 				break;
 			case "DEFAULT":
 				// We need the direction and the trip of the row we are editing.
@@ -647,8 +643,14 @@ function CreateNewStopTimes() {
 				current_trip_id = selectedrowintrip.trip_id;
 				StopTimesbasedonCopyofTrip(selected_trip_id, current_trip_id);
 				break;
-		}		
+		}
+		// Show the tab
+		$('#myTab a[href="#stoptimes"]').tab('show');
+		// Close the modal
+		$('#CreateStopTimesModal').modal('hide');		
 	});
+	
+	
 }
 
 function StopTimesbasedonDefaultSequence(route_id, direction_id) {
@@ -825,12 +827,18 @@ function populateRouteSelect(data) {
 }
 
 function saveTimings() {
-	var selected = tripsTable.getSelectedData();
-	if (selected.length != 1) {
-		console.log('Please select a trip_id and load the timings table first.');
-		return;
+	var timingsData = stoptimesTable.getData();
+	if (!timingsData.length > 0) {
+		$.toast({
+			title: 'Saving stop times',
+			subtitle: 'No stoptimes provided.',
+			content: 'Please add the stoptimes first.',
+			type: 'error',
+			delay: 5000
+		});
+	 	return;
 	}
-	var trip_id = selected[0].trip_id;
+	var trip_id = timingsData[0].trip_id;
 	var pw = $("#password").val();
 	if (!pw.length) {
 		$.toast({
@@ -850,7 +858,7 @@ function saveTimings() {
 		delay: 3000
 	});
 
-	var timingsData = stoptimesTable.getData();
+	
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST', `${APIpath}gtfs/stoptimes/${trip_id}?pw=${pw}`);
 	xhr.withCredentials = true;
@@ -993,7 +1001,7 @@ function addTrip() {
 		var trip_id = route_id + pad(counter);
 		// TODO: change this, adopt naming conventions.
 
-		var trip_short_name = route_id + ' - ' + i + ' - ' + trip_time;
+		var trip_short_name = route_id + ' - ' + directionsArray[i] + ' - ' + trip_time;
 		tripsTable.addRow([{
 			route_id: route_id, trip_id: trip_id, service_id: service_id, direction_id: directionsArray[i], trip_short_name: trip_short_name
 		}], true);
