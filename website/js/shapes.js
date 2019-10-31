@@ -112,6 +112,8 @@ map.pm.addControls({
 	drawCircle: false
 });
 
+var DrawingLayer = L.featureGroup().addTo(map);
+
 // ###################
 // commands to run on page load
 $(document).ready(function () {
@@ -374,7 +376,7 @@ function getPythonStopTimes(trip_id) {
 
 
 function getPythonStops() {
-	// loading stops.txt data, keyed by stop_id.
+	// loading all stops.txt data, keyed by stop_id.
 
 	let xhr = new XMLHttpRequest();
 	xhr.open('GET', `${APIpath}gtfs/stop`);
@@ -397,7 +399,10 @@ function getPythonStops() {
 
 
 function OnlineRoute() {
-
+	// Clear the online routed layer.
+	if (map.hasLayer(OnlineRouteLayer)) {
+		map.removeLayer(OnlineRouteLayer);
+	}
 	if (stop_times.length > 0) {
 		var OnlineRoutePlanner;
 		var RoutingArrayPoint = [];
@@ -553,6 +558,8 @@ function OnlineRoute() {
 				layerControl.addOverlay(OnlineRouteLayer, 'Online Routing');
 				map.fitBounds(OnlineRouteLayer.getBounds(), { padding: [40, 20], maxZoom: 20 });
 				OnlineRouteLayer.pm.enable();
+				// Close the modal
+				$('#OnlineRoutingModal').modal('hide');
 			}
 			else {
 				$.toast({
@@ -726,40 +733,59 @@ function SaveShape() {
 		});
 		shakeIt('password'); return;
 	}
-	var selectedforexport = $("#shape_save").val();
+	var selectedforexport = $("#shape_save").val();	
 	var shape_id = $("#shape_id").val();
+	if (!shape_id) {
+		$.toast({
+			title: 'Save Shape',
+			subtitle: 'No Shape_id given',
+			content: 'You have to enter a shape_id!',
+			type: 'error',
+			delay: 5000
+		});
+		return;
+	}
 	var shapearray = [];
 	switch (selectedforexport) {
 		case "Drawn":
-			// Whe have to loop through the layers because we don't know the layer id.
-			if (DrawingLayerLatLng.length == 0) {
-				$.toast({
-					title: 'Save Shape',
-					subtitle: 'No Layer',
-					content: 'This layer has not been added to the map.',
-					type: 'error',
-					delay: 5000
-				});
-			}
-			else if (DrawingLayerLatLng.length == 1) {
-				// OK we got 1 line.
-				shapearray = DrawingLayerLatLng[0];
-			}
-			else {
-				// hmmm multple polylines.
-				var multiGeometry = turf.multiLineString();
-				var flatten = turf.flatten(multiGeometry);
-			}
-
+				if (map.hasLayer(DrawingLayer)) {
+					// We need to have at least 1 layer.
+					if (DrawingLayer.getLayers().length > 0) {						
+						var geojson = DrawingLayer.toGeoJSON();
+						var reader = new jsts.io.GeoJSONReader();
+						var writer = new jsts.io.GeoJSONWriter();				
+						const lineMerger = new jsts.operation.linemerge.LineMerger();
+						var geoms = $.map(geojson.features, function (feature) {
+							return reader.read(feature.geometry);
+						});				
+						lineMerger._factory = new jsts.geom.GeometryFactory();
+						geoms.forEach(function (geom, i, array) {					
+							lineMerger._graph.addEdge(geom)					
+						});
+						const mergedLineStrings = lineMerger.getMergedLineStrings();
+						const mergedLineString = mergedLineStrings.get(0);
+						const result = writer.write(mergedLineString);				
+						result.coordinates.forEach(function (shaperow, index) {
+							shapearray.push({lat: shaperow[1], lng: shaperow[0]});
+						});
+					}
+					else {
+						$.toast({
+							title: 'Save Shape',
+							subtitle: 'No Layer',
+							content: 'This layer has not been added to the map.',
+							type: 'error',
+							delay: 5000
+						});
+						return;
+					}
+				}
 			break;
 		case "File":
-			// Check if layer ahs been added to the map. That way we now there is a line
+			// Check if layer has been added to the map. That way we now there is a line
 			if (map.hasLayer(FileShapeLayer)) {
 				var geojson = FileShapeLayer.toGeoJSON();
-				console.log(geojson);
-				//var multiGeometry = turf.multiLineString(geojson);
-				// var flatten = turf.union(geojson);
-				// console.log(flatten);
+				console.log(geojson);				
 				shapearray = FileShapeLayer.getLatLngs();
 			}
 			else {
@@ -854,4 +880,5 @@ function SaveShape() {
 map.on('pm:create', e => {
 	// We captre the layer creation event and get the latlng after your'e ready with drawing. We save it in a var. 
 	DrawingLayerLatLng.push(e.layer.getLatLngs());
+	DrawingLayer.addLayer(e.layer);
 });
