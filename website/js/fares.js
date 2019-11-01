@@ -67,6 +67,7 @@ var fareattributes = new Tabulator("#fare-attributes-table", {
 	//layout:"fitColumns", //fit columns to width of table (optional)
 	index: "fare_id",
 	history: true,
+	height: 400,	
 	addRowPos: "top",
 	ajaxURL: `${APIpath}gtfs/fareattributes`,	
 	ajaxLoaderLoading: loaderHTML,
@@ -145,6 +146,7 @@ var farerules = new Tabulator("#fare-rules-table", {
 	//layout:"fitColumns", //fit columns to width of table (optional)
 	index: "fare_id",
 	history: true,
+	height: 400,
 	addRowPos: "top",
 	placeholder: "There are no rules defined. First create a rule.",
 	ajaxURL: `${APIpath}gtfs/farerules/pivoted`,
@@ -195,6 +197,7 @@ var simple = new Tabulator("#fare-rules-simple-table", {
 	//layout:"fitColumns", //fit columns to width of table (optional)
 	//index: "fare_id", // no index on this one
 	history: true,
+	height: 400,
 	addRowPos: "top",
 	ajaxURL: `${APIpath}gtfs/farerules`, //ajax URL
 	ajaxLoaderLoading: loaderHTML,
@@ -451,7 +454,22 @@ $("#addFareRuleButton").on("click", function () {
 
 $("#saveFareRulesSimpleButton").on("click", function () {
 	saveFareRulesSimple();
-})
+});
+
+$('.nav-tabs a[href="#Pivoted"]').on('shown.bs.tab', function (e) {
+	farerules.redraw(true);
+  });
+
+  $('.nav-tabs a[href="#Simple"]').on('shown.bs.tab', function (e) {
+	simple.redraw(true);
+  });
+
+  $('.nav-tabs a[href="#Attributes"]').on('shown.bs.tab', function (e) {
+	fareattributes.redraw(true);
+  });
+
+
+
 
 // #####################################
 // Functions
@@ -542,6 +560,7 @@ function saveFareAttributes() {
 			});
 		}
 	});
+	fareattributes.redraw();
 }
 
 function saveFareRulesPivoted() {
