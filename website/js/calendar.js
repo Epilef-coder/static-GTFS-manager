@@ -57,6 +57,7 @@ var service = new Tabulator("#calendar-table", {
 	movableRows: true,
 	history:true,
 	addRowPos: "top",
+	height:400,
 	movableColumns: true,
 	layout: "fitColumns", //fit columns to width of table (optional)
 	ajaxURL: `${APIpath}gtfs/calendar`, //ajax URL
@@ -106,6 +107,7 @@ var calendarDates = new Tabulator("#calendar-dates-table", {
 	movableRows: true,
 	history:true,
 	addRowPos: "top",
+	height:400,
 	movableColumns: true,
 	layout:"fitDataFill",
 	footerElement: footerHTMLcalendarDates,
