@@ -49,7 +49,10 @@ var FastAddstoptimes = `
     <div class="dropdown-menu" aria-labelledby="btnGroupFastAdd">
       <a class="dropdown-item" href="#" id="CopyArrivaltoDeparture" data-toggle="popover" data-trigger="hover" data-placement="top" data-html="false" data-content="Copy the arrival times to departure times for complete table">Copy arrival to departure</a>	  
 	</div>
-	<select id="AddStoptoStopTimesSelect" class="form-control mr-2"><option></option></select><button id="AddStoptoStopTimes" class="btn btn-secondary" disabled>Add Stop</button>
+</div>
+<div class="btn-group dropup mr-2" role="group" id="StopTimesGroup">
+	<button id="PrevTripButton" class="btn btn-secondary" title="PRevious trip"><i class="fas fa-backward"></i></button><button id="NextTripButton" class="btn btn-secondary" title="Next trip"><i class="fas fa-forward"></i></button>
+	<select id="AddStoptoStopTimesSelect" class="form-control"><option></option></select><button id="AddStoptoStopTimes" class="btn btn-secondary" disabled>Add Stop</button>
 </div>
 `;
 // Stoptimes table footer.
@@ -221,52 +224,20 @@ $('.nav-tabs a[href="#stoptimes"]').on('shown.bs.tab', function (event) {
 			break;
 	}
 	$("#StopTimesDirection").val(directiontext);
-})
-// 	// Check if the table has unsaved data! 
-// 	if (TripsTableEdited) {
-// 		alert('There is unsaved data in the trips table. Please save it before going to the Stop times tab.');
-// 	}
-// 	else {
-// 		// Check if a row is selected
-// 		var selectedRows = tripsTable.getSelectedRows(); //get array of currently selected row components.
-// 		if (selectedRows.length == 0) {
-// 			alert('Please select a row in the trips table first');
-// 			// select the trips tab
-// 			$('.nav-tabs a[href="#trips"]').tab('show');
-// 		}
-// 		else {
-// 			// loading stoptimes data for trip
-// 			// select the values of the first selected trip.
-// 			var row = selectedRows[0].getData();
-// 			var trip_id = row.trip_id;
-// 			var route_id = row.route_id;
-// 			var direction = row.direction_id;
-// 			var trip_short_name = row.trip_short_name;
-// 			console.log(route_id);
-// 			stoptimesTable.clearData();
-// 			// loading stoptimings.
-// 			stoptimesTable.setData(`${APIpath}gtfs/stoptimes/${trip_id}`);
-// 			//getPythonStopTimes(trip_id, route_id, direction);
+});
 
-// 			// Setting table header info
-// 			$("#StopTimesRoute").val($('#routeSelect').select2('data')[0].text);
-// 			$("#StopTimesTrip").val(trip_id + ' - ' + trip_short_name);
-// 			var directiontext;
-// 			switch (direction) {
-// 				case "0":
-// 					directiontext = "Onward";
-// 					break;
-// 				case "1":
-// 					directiontext = "Return"
-// 					break;
-// 				default:
-// 					directiontext = "None"
-// 					break;
-// 			}
-// 			$("#StopTimesDirection").val(directiontext);
-// 		}
-// 	}
-// });
+$(document).on('click', '#AddStoptoStopTimes', function () {
+	// Add the stop to the position selected if nothing selected then add it to the last position.
+	stoptimesTable.addRow({stop_id: $('#AddStoptoStopTimesSelect').val()})
+});
+
+$(document).on('select2:select', '#AddStoptoStopTimesSelect', function () {
+	// On select remove disabled from the button	
+	$('#AddStoptoStopTimes').prop('disabled', false);
+});
+
+
+
 
 var timeValidator = function (cell, value, parameters) {
 	var r = /^(?:[012345]\d):(?:[012345]\d):(?:[012345]\d)$/
@@ -278,6 +249,7 @@ var stoptimesTable = new Tabulator("#stop-times-table", {
 	index: 'stop_sequence',
 	history: true,
 	addRowPos: "top",
+	height:500,
 	movableColumns: true,
 	layout: "fitColumns",
 	persistentFilter: true,
@@ -492,6 +464,7 @@ $('#routeSelect').on("select2:select", function (e) {
 		$("#shapeApplyHTML").hide('slow');
 		return;
 	}
+
 	getPythonTrips(route_id);
 	resetTimings();
 	// set globals
@@ -649,7 +622,6 @@ function CreateNewStopTimes() {
 		// Close the modal
 		$('#CreateStopTimesModal').modal('hide');		
 	});
-	
 	
 }
 
