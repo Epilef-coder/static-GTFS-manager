@@ -51,7 +51,7 @@ var FastAddstoptimes = `
 	</div>
 </div>
 <div class="btn-group dropup mr-2" role="group" id="StopTimesGroup">
-	<button id="PrevTripButton" class="btn btn-secondary" title="PRevious trip"><i class="fas fa-backward"></i></button><button id="NextTripButton" class="btn btn-secondary" title="Next trip"><i class="fas fa-forward"></i></button>
+	<button id="PrevTripButton" class="btn btn-secondary" title="Previous trip"><i class="fas fa-backward"></i></button><button id="NextTripButton" class="btn btn-secondary" title="Next trip"><i class="fas fa-forward"></i></button>
 	<select id="AddStoptoStopTimesSelect" class="form-control"><option></option></select><button id="AddStoptoStopTimes" class="btn btn-secondary" disabled>Add Stop</button>
 </div>
 `;
@@ -228,6 +228,7 @@ $('.nav-tabs a[href="#stoptimes"]').on('shown.bs.tab', function (event) {
 
 $(document).on('click', '#AddStoptoStopTimes', function () {
 	// Add the stop to the position selected if nothing selected then add it to the last position.
+	// TODO: FIX THE ADD TO TABLE
 	stoptimesTable.addRow({stop_id: $('#AddStoptoStopTimesSelect').val()})
 });
 
@@ -488,6 +489,7 @@ function EditTrip(row) {
 	// If we also don't have a defaultsequence inform the user that there is no default sequence 
 	// and that the user has to create one or let the use create a stoptimes table entry for the trip.
 	trip_id = row.trip_id;
+	
 	selectedrowintrip = row;
 	$.get(`${APIpath}gtfs/stoptimes/${trip_id}`)
 		.done(function (result) {
@@ -500,6 +502,17 @@ function EditTrip(row) {
 				stoptimesTable.setData(`${APIpath}gtfs/stoptimes/${trip_id}`);
 				// Show the tab
 				$('#myTab a[href="#stoptimes"]').tab('show') // Select tab by name
+				// TODO: FIX NEXT AND PREV BUTTONS
+				// var nextRow = row.getNextRow();
+				// console.log(nextRow);
+				// if (nextRow == false) {
+				// 	$('#NextTripButton').prop('disabled', true);
+				// }
+				// var prevRow = row.getPrevRow();
+				// console.log(prevRow);
+				// if (prevRow == false) {
+				// 	$('#PrevTripButton').prop('disabled', true);
+				// }
 			}
 			else {
 				$.get(`${APIpath}defaultsequence/${row.route_id}`)
@@ -618,7 +631,7 @@ function CreateNewStopTimes() {
 				break;
 		}
 		// Show the tab
-		$('#myTab a[href="#stoptimes"]').tab('show');
+		$('#myTab a[href="#stoptimes"]').tab('show');			
 		// Close the modal
 		$('#CreateStopTimesModal').modal('hide');		
 	});
