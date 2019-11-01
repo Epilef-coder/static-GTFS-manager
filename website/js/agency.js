@@ -227,7 +227,7 @@ function addAgency() {
 	var agency_name = $('#agency_name').val();
 	var agency_url = $('#agency_url').val();
 	var agency_timezone = $('#agency_timezone').select2().val();
-	var agency_lang = $('#agency_url').val();
+	var agency_lang = $('#agency_lang').val();
 	var agency_phone = $('#agency_phone').val();
 	var agency_fare_url = $('#agency_fare_url').val();
 	var agency_email = $('#agency_email').val();
@@ -241,15 +241,12 @@ function addAgency() {
 			type: 'error',
 			delay: 5000
 		});
-		//$('#agencyAddStatus').html('<span class="alert alert-warning">Give a valid id please.</span>');
 		return;
-
 	}
 
 	var agency_id_list = data.map(a => a.agency_id);
 	var isPresent = agency_id_list.indexOf(agency_id) > -1;
-	if (isPresent) {
-		//$('#agencyAddStatus').html('<span class="alert alert-danger">' + agency_id + ' is already there.</span>');
+	if (isPresent) {		
 		$.toast({
 			title: 'Add Agency',
 			subtitle: 'Failed to Add',
@@ -259,7 +256,7 @@ function addAgency() {
 		});
 	} else {
 		table.addData([{ 'agency_id': agency_id, 'agency_name': agency_name, 'agency_url': agency_url, 'agency_timezone': agency_timezone, 'agency_lang': agency_lang, 'agency_phone': agency_phone, 'agency_fare_url':agency_fare_url, 'agency_email': agency_email }]);
-		//$('#agencyAddStatus').html('<span class="alert alert-success">Added agency_id ' + agency_id + '</span>');
+		
 		$.toast({
 			title: 'Add Agency',
 			subtitle: 'Success',
