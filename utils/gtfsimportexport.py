@@ -85,53 +85,72 @@ def importGTFS(zipname):
             lookupJSON = OrderedDict()
             carryOverChunk = pd.DataFrame()
 
-            for chunk in pd.read_csv(unzipFolder + txtfile, chunksize=chunkSize, dtype=str, na_values=''):
-                # see if can use na_filter=False to speed up
+            if tablename == 'shapes':
+                chunk_count = 0
+                reader = pd.read_csv(unzipFolder + txtfile, chunksize=chunkSize, dtype=str, na_values='')
+                for chunk in reader:
+                    grouped = chunk.groupby(['shape_id'])
+                    chunk_count = chunk_count + 1
+                    print("Processing next chunk...", chunk_count)
+                    for name, group in grouped:
+                        # I use assumption that customer name is in the name of files
+                        fileCounter += 1
+                        h5File = tablename + '_' + str(fileCounter) + '.h5'  # ex: stop_times_1.h5
+                        lookupJSON[name] = h5File
+                        if os.path.exists(dbFolder + h5File):
+                            group.to_hdf(dbFolder + h5File, 'df', format='table', append=True, mode='a', complevel=1)
+                        else:
+                            group.to_hdf(dbFolder + h5File, 'df', format='table', mode='w', complevel=1)
+            else:
+                for chunk in pd.read_csv(unzipFolder + txtfile, chunksize=chunkSize, dtype=str, na_values=''):
+                    # see if can use na_filter=False to speed up
 
-                if not len(chunk):
-                    # skip the table if it's empty.
-                    # there's probably going to be only one chunk if this is true
-                    print('Skipping',tablename,'because its empty')
-                    continue
+                    if not len(chunk):
+                        # skip the table if it's empty.
+                        # there's probably going to be only one chunk if this is true
+                        print('Skipping',tablename,'because its empty')
+                        continue
 
-                # zap the NaNs at chunk level
-                chunk = chunk.fillna('')
+                    # zap the NaNs at chunk level
+                    chunk = chunk.fillna('')
 
-                IDList = chunk[IDcol].unique().tolist()
-                # print('first ID: ' + IDList[0])
-                # print('last ID: ' + IDList[-1])
-                workChunk = chunk[ chunk[IDcol].isin(IDList[:-1]) ]
-                if len(carryOverChunk):
-                    workChunk = pd.concat([carryOverChunk, workChunk],ignore_index=True)
-                carryOverChunk = chunk[ chunk[IDcol] == IDList[-1] ]
+                    IDList = chunk[IDcol].unique().tolist()
+                    # print('first ID: ' + IDList[0])
+                    # print('last ID: ' + IDList[-1])
+                    workChunk = chunk[ chunk[IDcol].isin(IDList[:-1]) ]
+                    if len(carryOverChunk):
+                        workChunk = pd.concat([carryOverChunk, workChunk],ignore_index=True)
+                    carryOverChunk = chunk[ chunk[IDcol] == IDList[-1] ]
 
-                fileCounter += 1
-                h5File = tablename + '_' + str(fileCounter) + '.h5' # ex: stop_times_1.h5
-                logmessage('{}: {} rows'.format(h5File, str(len(workChunk)) ) )
-                workChunk.to_hdf(dbFolder+h5File, 'df', format='table', mode='w', complevel=1)
-                del workChunk
+                    fileCounter += 1
+                    h5File = tablename + '_' + str(fileCounter) + '.h5' # ex: stop_times_1.h5
+                    logmessage('{}: {} rows'.format(h5File, str(len(workChunk)) ) )
+                    workChunk.to_hdf(dbFolder+h5File, 'df', format='table', mode='w', complevel=1)
+                    del workChunk
+                    gc.collect()
+
+                    # making lookup table
+                    for x in IDList[:-1]:
+                        if lookupJSON.get(x,None):
+                            logmessage('WARNING: {} may not have been sorted properly. Encountered a repeat instance of {}={}'
+                                .format(txtfile,IDcol,x))
+                        lookupJSON[x] = h5File
+
+                # chunk loop over.
+                del chunk
+
+                # Now append the last carry-over chunk in to the last chunkfile
+                logmessage('Appending the {} rows of last ID to last chunk {}'
+                    .format(str(len(carryOverChunk)),h5File))
+                carryOverChunk.to_hdf(dbFolder+h5File, 'df', format='table', append=True, mode='a', complevel=1)
+                # need to set append=True to tell it to append. mode='a' is only for file-level.
+                # add last ID to lookup
+                # TODO: FIX this bug: https://stackoverflow.com/questions/48856584/python-pandas-dataframe-valueerror-trying-to-store-a-string-with-len
+                # If a column value is longer len() then the longest value of the first chunk, you cannot append it.
+                lookupJSON[ IDList[-1] ] = h5File
+
+                del carryOverChunk
                 gc.collect()
-
-                # making lookup table
-                for x in IDList[:-1]:
-                    if lookupJSON.get(x,None):
-                        logmessage('WARNING: {} may not have been sorted properly. Encountered a repeat instance of {}={}'
-                            .format(txtfile,IDcol,x))
-                    lookupJSON[x] = h5File
-
-            # chunk loop over.
-            del chunk
-
-            # Now append the last carry-over chunk in to the last chunkfile
-            logmessage('Appending the {} rows of last ID to last chunk {}'
-                .format(str(len(carryOverChunk)),h5File))
-            carryOverChunk.to_hdf(dbFolder+h5File, 'df', format='table', append=True, mode='a', complevel=1)
-            # need to set append=True to tell it to append. mode='a' is only for file-level.
-            # add last ID to lookup
-            lookupJSON[ IDList[-1] ] = h5File
-
-            del carryOverChunk
-            gc.collect()
 
             lookupJSONFile = chunkRules[tablename].get('lookup','lookup.json')
             with open(dbFolder + lookupJSONFile, 'w') as outfile:
@@ -142,7 +161,6 @@ def importGTFS(zipname):
 
     logmessage('Finished importing GTFS feed. You can remove the feed zip {} and folder {} from {} if you want.'.format(zipname,unzipFolder,uploadFolder))
     return True
-
 
 def exportGTFS (folder):
     # create commit folder
