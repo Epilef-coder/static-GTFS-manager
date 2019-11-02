@@ -86,6 +86,7 @@ def importGTFS(zipname):
             carryOverChunk = pd.DataFrame()
 
             if tablename == 'shapes':
+                # Code based on: http://binary-notes.ru/dealing-with-very-big-files-using-pandas-dataframe/
                 chunk_count = 0
                 reader = pd.read_csv(unzipFolder + txtfile, chunksize=chunkSize, dtype=str, na_values='')
                 for chunk in reader:
