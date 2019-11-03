@@ -84,9 +84,11 @@ def importGTFS(zipname):
             fileCounter = 0
             lookupJSON = OrderedDict()
             carryOverChunk = pd.DataFrame()
-
+            # We use different chunking for this bug:
+            # https://stackoverflow.com/questions/48856584/python-pandas-dataframe-valueerror-trying-to-store-a-string-with-len
             if tablename == 'shapes':
                 # Code based on: http://binary-notes.ru/dealing-with-very-big-files-using-pandas-dataframe/
+                # We chunk the shapes txt based on the shape_id. Because we will call by shape_id for the api.
                 chunk_count = 0
                 reader = pd.read_csv(unzipFolder + txtfile, chunksize=chunkSize, dtype=str, na_values='')
                 for chunk in reader:
@@ -102,7 +104,34 @@ def importGTFS(zipname):
                             group.to_hdf(dbFolder + h5File, 'df', format='table', append=True, mode='a', complevel=1)
                         else:
                             group.to_hdf(dbFolder + h5File, 'df', format='table', mode='w', complevel=1)
+                # chunk loop over.
+                del chunk
+                gc.collect()
+
+            elif tablename == 'stop_times':
+                # Code based on: http://binary-notes.ru/dealing-with-very-big-files-using-pandas-dataframe/
+                # We chunk the stop_times txt based on the trip_id. Because we will call by trip_id for the api.
+                chunk_count = 0
+                reader = pd.read_csv(unzipFolder + txtfile, chunksize=chunkSize, dtype=str, na_values='')
+                for chunk in reader:
+                    grouped = chunk.groupby(['trip_id'])
+                    chunk_count = chunk_count + 1
+                    print("Processing next chunk...", chunk_count)
+                    for name, group in grouped:
+                        # I use assumption that customer name is in the name of files
+                        fileCounter += 1
+                        h5File = tablename + '_' + str(fileCounter) + '.h5'  # ex: stop_times_1.h5
+                        lookupJSON[name] = h5File
+                        if os.path.exists(dbFolder + h5File):
+                            group.to_hdf(dbFolder + h5File, 'df', format='table', append=True, mode='a', complevel=1)
+                        else:
+                            group.to_hdf(dbFolder + h5File, 'df', format='table', mode='w', complevel=1)
+                # chunk loop over.
+                del chunk
+                gc.collect()
+
             else:
+                # Old procedure.
                 for chunk in pd.read_csv(unzipFolder + txtfile, chunksize=chunkSize, dtype=str, na_values=''):
                     # see if can use na_filter=False to speed up
 
@@ -146,7 +175,6 @@ def importGTFS(zipname):
                 carryOverChunk.to_hdf(dbFolder+h5File, 'df', format='table', append=True, mode='a', complevel=1)
                 # need to set append=True to tell it to append. mode='a' is only for file-level.
                 # add last ID to lookup
-                # TODO: FIX this bug: https://stackoverflow.com/questions/48856584/python-pandas-dataframe-valueerror-trying-to-store-a-string-with-len
                 # If a column value is longer len() then the longest value of the first chunk, you cannot append it.
                 lookupJSON[ IDList[-1] ] = h5File
 
@@ -158,7 +186,6 @@ def importGTFS(zipname):
                 json.dump(lookupJSON, outfile, indent=2)
             # storing lookup json
             logmessage('Lookup json: {} created for mapping ID {} to {}_n.h5 chunk files.'.format(lookupJSONFile,IDcol,tablename))
-
 
     logmessage('Finished importing GTFS feed. You can remove the feed zip {} and folder {} from {} if you want.'.format(zipname,unzipFolder,uploadFolder))
     return True
