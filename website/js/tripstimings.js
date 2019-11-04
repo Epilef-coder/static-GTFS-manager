@@ -22,6 +22,55 @@ var timeValidator = function (cell, value, parameters) {
 };
 
 
+// Map
+var defaultlayer = cfg.MapProviders.find(x => x.default === true);
+var Extralayers = cfg.MapProviders.filter(x => x.default === false);
+// Set openstreetmap as the defaultlayer if nothing is defined as default.
+var defaultlayer = !defaultlayer ? 'OpenStreetMap.Mapnik' : defaultlayer.id;
+
+var LayerOSM = L.tileLayer.provider(defaultlayer);
+
+var baseLayers = {
+	"OpenStreetMap": LayerOSM
+};
+
+Extralayers.forEach(function(layers, index) {
+	// Add the extra layers in a loop
+	// Filter out the paid 
+	switch(layers.id) {
+		case "HERE.terrainDay":
+			baseLayers[layers.name] = L.tileLayer.provider(layers.id, {
+				app_id: layers.apikey,
+				app_code: layers.variant
+			});
+		break;
+		case "MapBox":
+			baseLayers[layers.name] = L.tileLayer.provider(layers.id, {
+				id: layers.variant,
+				accessToken: layers.apikey
+			});
+		break;
+		case "TomTom":
+			baseLayers[layers.name] = L.tileLayer.provider(layers.id, {
+				apikey: layers.apikey
+			});
+		break;
+		default:
+			baseLayers[layers.name] = L.tileLayer.provider(layers.id);
+	}
+	
+});
+
+const startLocation = [10.030259357021862, 76.31446838378908];
+
+var map = new L.Map('mapId', {
+	center: [0, 0],
+	zoom: 2,
+	layers: [LayerOSM],
+	scrollWheelZoom: true
+});
+
+
 var selectedrowintrip;
 
 // global variables
@@ -171,7 +220,7 @@ var tripsTable = new Tabulator("#trips-table", {
 			formatter: viewIcon, align: "center", title: "View", headerSort: false, tooltip: "View this trip on a map", width: 50, cellClick: function (e, cell) {
 				var row = cell.getRow();
 				selectedrow = row.getData();
-				downloadreport(selectedrow.trip_id);
+				ViewTrip(selectedrow);
 			}
 		},
 		{
@@ -219,8 +268,8 @@ var tripsTable = new Tabulator("#trips-table", {
 var stoptimesTable = new Tabulator("#stop-times-table", {
 	selectable: 1,
 	index: 'stop_sequence',
-	history: true,	
-	height:500,
+	history: true,
+	height: 500,
 	movableColumns: true,
 	movableRows: true,
 	layout: "fitColumns",
@@ -230,7 +279,7 @@ var stoptimesTable = new Tabulator("#stop-times-table", {
 		// fields: trip_id,arrival_time,departure_time,stop_id,stop_sequence,timepoint,shape_dist_traveled
 		{ rowHandle: true, formatter: "handle", frozen: true, width: 30, minWidth: 30, headerSort: false },
 		{ title: "trip_id", field: "trip_id", visible: true, frozen: true, headerSort: false, width: 150 }, // keeping this visible to avoid confusions		
-		{ title: "stop_sequence", field: "stop_sequence", headerSort: false, sorter: "number"},
+		{ title: "stop_sequence", field: "stop_sequence", headerSort: false, sorter: "number" },
 		{
 			title: "stop_id", field: "stop_id", headerFilter: "input", headerSort: false, tooltip: function (cell) {
 				// Dynamic tooltip
@@ -272,15 +321,15 @@ var stoptimesTable = new Tabulator("#stop-times-table", {
 		$('#saveTimings').removeClass().addClass('btn btn-primary');
 		$('#saveTimings').prop('disabled', false);
 	},
-	rowMoved:function(row){		
+	rowMoved: function (row) {
 		// After moving we need to reoarder the stop_sequence.
 		// Loop through rows and set new stop_sequence.
 		var rows = stoptimesTable.getRows();
 		rows.forEach(function (row, index) {
 			// Copy all the arrival_times to the departure times.
 			stoptimesTable.updateRow(row, { stop_sequence: index });
-		});		
-    }
+		});
+	}
 
 });
 
@@ -313,8 +362,8 @@ $(document).on('click', '#AddStoptoStopTimes', function () {
 	var selectedRows = stoptimesTable.getSelectedRows();
 	if (selectedRows.length == 0) {
 		// there is no row selected.
-		var rowCount = stoptimesTable.getDataCount();	
-		stoptimesTable.addRow({stop_id: $('#AddStoptoStopTimesSelect').val(), trip_id: selectedrowintrip.trip_id, stop_sequence:rowCount});
+		var rowCount = stoptimesTable.getDataCount();
+		stoptimesTable.addRow({ stop_id: $('#AddStoptoStopTimesSelect').val(), trip_id: selectedrowintrip.trip_id, stop_sequence: rowCount });
 	}
 	else {
 		// There is a row selected.
@@ -322,14 +371,14 @@ $(document).on('click', '#AddStoptoStopTimes', function () {
 		// We need the row pos in the full table not of the selected row.
 		var rowPosition = selectedRows[0].getIndex();
 		console.log(rowPosition);
-		stoptimesTable.addRow({stop_id: $('#AddStoptoStopTimesSelect').val(), trip_id: selectedrowintrip.trip_id},false,rowPosition);
+		stoptimesTable.addRow({ stop_id: $('#AddStoptoStopTimesSelect').val(), trip_id: selectedrowintrip.trip_id }, false, rowPosition);
 		//We need to to update the stop_sequence after the insert.
 		var rows = stoptimesTable.getRows();
 		rows.forEach(function (row, index) {
 			// Copy all the arrival_times to the departure times.
 			stoptimesTable.updateRow(row, { stop_sequence: index });
-		});	
-	}	
+		});
+	}
 });
 
 $(document).on('select2:select', '#AddStoptoStopTimesSelect', function () {
@@ -522,7 +571,7 @@ function EditTrip(row) {
 	// If we also don't have a defaultsequence inform the user that there is no default sequence 
 	// and that the user has to create one or let the use create a stoptimes table entry for the trip.
 	trip_id = row.trip_id;
-	
+
 	selectedrowintrip = row;
 	$.get(`${APIpath}gtfs/stoptimes/${trip_id}`)
 		.done(function (result) {
@@ -558,15 +607,15 @@ function EditTrip(row) {
 								CreateTripModal(true, row.route_id);
 							}
 							else {
-								CreateTripModal(false,row.route_id);
+								CreateTripModal(false, row.route_id);
 							}
 						}
 						else {
-							CreateTripModal(false,row.route_id);
+							CreateTripModal(false, row.route_id);
 						}
 					})
 					.fail(function () {
-						CreateTripModal(false,row.route_id);
+						CreateTripModal(false, row.route_id);
 					})
 			}
 		})
@@ -575,22 +624,47 @@ function EditTrip(row) {
 		})
 }
 
-function ViewTrip(trip_id) {
+function ViewTrip(row) {
 	// function works a follows:	
 	// 1 Check if there is stop_times data for this trip
+	trip_id = row.trip_id;
+	shape_id = row.shape_id;	
 	// If there is no data, we cannot process further.
 	// If there is data we have to create a modal with a map with the stops info.
+		$.get(`${APIpath}gtfs/stoptimes/${trip_id}`)
+		.done(function (result) {
+			stoptimes = JSON.parse(result);
+			console.log(stoptimes)
+			if (stoptimes.length > 0) {
+				ViewMap(stoptimes, shape_id);
+			}
+			else {
+				$.toast({
+					title: 'View Trip',
+					subtitle: 'No data',
+					content: 'This trips has no stop_times data so we cannot show a map of the trip.',
+					type: 'error',
+					delay: 1000
+				});
+			}
 
-	if (CheckStopTimesEntry(trip_id)) {
-
-	}
-	else {
-
-	}
-
-
+		});
 }
 
+function ViewMap(stop_times, shape_id) {
+	if (shape_id) {
+		// Get the shape info.
+		// Get the polylinestring for this.
+	}
+	
+	// Show the modal 
+	$('#mapModal').modal('show');
+}
+
+
+$('#mapModal').on('shown.bs.modal', function(){
+    map.invalidateSize();    
+});
 
 function CreateTripModal(defaultsequence, trip_id) {
 	// This function will popup the create stop_times modal with the correct html for the selection.
@@ -615,31 +689,31 @@ function CreateTripModal(defaultsequence, trip_id) {
 	</div>`;
 	$('#StoptimesSources').append(CheckboxHTML);
 	$.get(`${APIpath}gtfs/trips/list/tripswithstoptimes/${trip_id}`)
-	.done(function (result) {
-		stoptimes = JSON.parse(result);		
-		if (stoptimes.length > 0) {
-			// Add the html layout without options
-			var CheckboxHTML = `<div class="form-check">
+		.done(function (result) {
+			stoptimes = JSON.parse(result);
+			if (stoptimes.length > 0) {
+				// Add the html layout without options
+				var CheckboxHTML = `<div class="form-check">
 						<input class="form-check-input" type="radio" id="CreateTrip_Copy" name="CreateStopTimes" value="COPY">
 						<label class="form-check-label" for="CreateTrip_Copy">
 							Copy a trip based on the selected trip:  <select class="form-control" id="CreateTrip_Copy_Select"><option value="">Select a trip to copy</option>					
 							</select>
 						</label>
 						</div>`;
-					$('#StoptimesSources').append(CheckboxHTML);
-			// Loop through all the trips that arre possible to copy.
-			stoptimes.forEach(function(copytrips){				
-				var newOption = new Option(copytrips.trip_id, copytrips.trip_id, false, false);
-				$('#CreateTrip_Copy_Select').append(newOption).trigger('change');
-			});
-		}
-		// Show the modal 
-		$('#CreateStopTimesModal').modal('show');		
-	})
-	.fail(function () {
-		// If the API request fals always show the modal because we have possible a default sequence and a empty trip list.
-		$('#CreateStopTimesModal').modal('show');
-	})
+				$('#StoptimesSources').append(CheckboxHTML);
+				// Loop through all the trips that arre possible to copy.
+				stoptimes.forEach(function (copytrips) {
+					var newOption = new Option(copytrips.trip_id, copytrips.trip_id, false, false);
+					$('#CreateTrip_Copy_Select').append(newOption).trigger('change');
+				});
+			}
+			// Show the modal 
+			$('#CreateStopTimesModal').modal('show');
+		})
+		.fail(function () {
+			// If the API request fals always show the modal because we have possible a default sequence and a empty trip list.
+			$('#CreateStopTimesModal').modal('show');
+		})
 }
 
 function CreateNewStopTimes() {
@@ -664,11 +738,11 @@ function CreateNewStopTimes() {
 				break;
 		}
 		// Show the tab
-		$('#myTab a[href="#stoptimes"]').tab('show');			
+		$('#myTab a[href="#stoptimes"]').tab('show');
 		// Close the modal
-		$('#CreateStopTimesModal').modal('hide');		
+		$('#CreateStopTimesModal').modal('hide');
 	});
-	
+
 }
 
 function StopTimesbasedonDefaultSequence(route_id, direction_id) {
@@ -683,7 +757,7 @@ function StopTimesbasedonDefaultSequence(route_id, direction_id) {
 				// OK update the trip to use the defaultsequence shape with this trip.
 				var shape_id = (direction_id == 0) ? defaultsequence.sequence.shape0 : defaultsequence.sequence.shape1;
 				var last_stop_id = defaultsequence.sequence[direction_id][defaultsequence.sequence[direction_id].length - 1].stop_id;
-				var trip_headsign = allStopsKeyed.find(x => x.stop_id === last_stop_id).stop_name;				
+				var trip_headsign = allStopsKeyed.find(x => x.stop_id === last_stop_id).stop_name;
 				console.log(shape_id);
 				// TODO: SAVE THE TRIPS TABLE NOW OR CHECK IT HAS TO BE DONE AFTER SAVING
 				tripsTable.updateData([{ trip_id: selectedrowintrip.trip_id, shape_id: shape_id, trip_headsign: trip_headsign }]);
@@ -749,7 +823,6 @@ function CopyArrivaltoDeparture() {
 		// Copy all the arrival_times to the departure times.
 		stoptimesTable.updateRow(row, { departure_time: row.getData().arrival_time });
 	});
-	//setSaveTimings(true);
 }
 
 function getPythonTrips(route_id) {
@@ -767,7 +840,7 @@ function getPythonTrips(route_id) {
 	});
 	// Let tabulator do the api requests.
 	tripsTable.setData(`${APIpath}gtfs/trips/route/${route_id}`);
-	$("#newTripHTML").show('slow');	
+	$("#newTripHTML").show('slow');
 }
 
 function getPythonRoutes() {
@@ -825,7 +898,7 @@ function saveTimings() {
 			type: 'error',
 			delay: 5000
 		});
-	 	return;
+		return;
 	}
 	var trip_id = timingsData[0].trip_id;
 	var pw = $("#password").val();
@@ -847,7 +920,6 @@ function saveTimings() {
 		delay: 3000
 	});
 
-	
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST', `${APIpath}gtfs/stoptimes/${trip_id}?pw=${pw}`);
 	xhr.withCredentials = true;
