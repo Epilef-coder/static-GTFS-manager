@@ -15,28 +15,6 @@ var stop_times = [];
 
 // Global var for holding multilple layers if in the source file of geojosn after conversion.
 var LineStringlayers;
-//####################
-// Tabulator tables
-
-var shapes_table = new Tabulator("#shapes-table", {
-	selectable: 0,
-	index: 'shape_id',
-	movableRows: true,
-	history: true,
-	addRowPos: "top",
-	movableColumns: true,
-	layout: "fitDataFill",
-	columns: [
-		{ rowHandle: true, formatter: "handle", headerSort: false, frozen: true, width: 30, minWidth: 30 },
-		{ title: "shape_id", field: "shape_id", editor: "input", width: 200, bottomCalc: shapeTotal },
-		{ title: "shape_pt_lat", field: "shape_pt_lat", editor: "input", headerSort: false, validator: "float" },
-		{ title: "shape_pt_lon", field: "shape_pt_lon", editor: "input", headerSort: false, validator: "float" },
-		{ title: "shape_pt_sequence", field: "shape_pt_sequence", editor: "input", validator: "integer" },
-		{ title: "shape_dist_traveled", field: "shape_dist_traveled", editor: "input", validator: "float" },
-
-	],
-
-});
 
 // ####################
 // MAP
@@ -139,6 +117,8 @@ $('#shape_shape').on('select2:select', function (e) {
 		return;
 	}
 	loadShape(valueSelected, 0);
+	// SELECT the save layer to Online routing
+	$("#shape_save").val('Loaded').change();
 });
 
 
@@ -196,7 +176,6 @@ function loadShape(shape_id) {
 	var jqxhr = $.get(`${APIpath}gtfs/shape/${shape_id}`, function (data) {
 		var shapeArray = JSON.parse(data);
 		console.log('GET request to API/shape succesful.');
-		//shapes_table.setData(shapeArray);
 		drawShape(shapeArray);
 	})
 		.fail(function () {
@@ -837,13 +816,12 @@ function SaveShape() {
 		// code block
 	}
 	// Clean the table first.
-	shapes_table.clearData();
 	jsondata = [];
 	// add the data to the table	
 	shapearray.forEach(function (shaperow, index) {
 		jsondata.push({ shape_id: shape_id, shape_pt_lat: shaperow.lat, shape_pt_lon: shaperow.lng, shape_pt_sequence: index });
 	});
-	var data = jsondata//shapes_table.getData();
+	var data = jsondata;
 	console.log(data);
 	console.log('sending to server via POST');
 	// sending POST request using native JS. From https://blog.garstasio.com/you-dont-need-jquery/ajax/#posting
@@ -860,10 +838,7 @@ function SaveShape() {
 				content: xhr.responseText,
 				type: 'success',
 				delay: 5000
-			});
-			// $('#saveAgencyButton').removeClass().addClass('btn btn-outline-primary');
-			// $('#saveAgencyButton').prop('disabled', true);
-			//$('#agencySaveStatus').html('<span class="alert alert-success">Success. Message: ' + xhr.responseText + '</span>');
+			});		
 		} else {
 			console.log('Server POST request to API/tableReadSave table=agency failed. Returned status of ' + xhr.status + ', reponse: ' + xhr.responseText);
 			$.toast({
@@ -872,8 +847,7 @@ function SaveShape() {
 				content: xhr.responseText,
 				type: 'error',
 				delay: 5000
-			});
-			//$('#agencySaveStatus').html('<span class="alert alert-danger">Failed to save. Message: ' + xhr.responseText+'</span>');
+			});		
 		}
 	}
 	xhr.send(JSON.stringify(data)); // this is where POST differs from GET : we can send a payload instead of just url arguments.
