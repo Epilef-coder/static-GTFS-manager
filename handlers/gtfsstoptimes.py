@@ -117,7 +117,7 @@ class gtfsstoptimes(tornado.web.RequestHandler):
                 data = json.loads(self.request.body.decode('UTF-8'))
 
                 if replaceTableDB('stop_times', data, key='trip_id', value=trip_id):  # replaceTableDB(tablename, data)
-                    self.write('Saved Agency data to DB.')
+                    self.write('Saved stop_times for {} in the DB.'.format(trip_id))
                 # time check, from https://stackoverflow.com/a/24878413/4355695
                 end = time.time()
                 logmessage("/API/gtfs/trips POST call took {} seconds.".format(round(end - start, 2)))

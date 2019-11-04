@@ -15,7 +15,14 @@ var editIcon = function (cell, formatterParams, onRendered) { //plain text value
 	return "<i class='fas fa-edit'></i>";
 };
 
-var selectedrowintrip
+// used by stoptimestable
+var timeValidator = function (cell, value, parameters) {
+	var r = /^(?:[012345]\d):(?:[012345]\d):(?:[012345]\d)$/
+	return r.test(value)
+};
+
+
+var selectedrowintrip;
 
 // global variables
 var tripsLock = false;
@@ -50,7 +57,7 @@ var FastAddstoptimes = `
       <a class="dropdown-item" href="#" id="CopyArrivaltoDeparture" data-toggle="popover" data-trigger="hover" data-placement="top" data-html="false" data-content="Copy the arrival times to departure times for complete table">Copy arrival to departure</a>	  
 	</div>
 </div>
-<div class="btn-group dropup mr-2" role="group" id="StopTimesGroup">
+<div class="input-group mr-2" role="group" id="StopTimesGroup">
 	<button id="PrevTripButton" class="btn btn-secondary" title="Previous trip"><i class="fas fa-backward"></i></button><button id="NextTripButton" class="btn btn-secondary" title="Next trip"><i class="fas fa-forward"></i></button>
 	<select id="AddStoptoStopTimesSelect" class="form-control"><option></option></select><button id="AddStoptoStopTimes" class="btn btn-secondary" disabled>Add Stop</button>
 </div>
@@ -205,61 +212,25 @@ var tripsTable = new Tabulator("#trips-table", {
 	},
 
 });
-// Tab seletion 
-$('.nav-tabs a[href="#stoptimes"]').on('shown.bs.tab', function (event) {
-	stoptimesTable.redraw();
-	//Setting table header info
-	$("#StopTimesRoute").val($('#routeSelect').select2('data')[0].text);
-	$("#StopTimesTrip").val(selectedrowintrip.trip_id + ' - ' + selectedrowintrip.trip_short_name);
-
-	switch (selectedrowintrip.direction_id) {
-		case "0":
-			directiontext = "Onward";
-			break;
-		case "1":
-			directiontext = "Return"
-			break;
-		default:
-			directiontext = "None"
-			break;
-	}
-	$("#StopTimesDirection").val(directiontext);
-});
-
-$(document).on('click', '#AddStoptoStopTimes', function () {
-	// Add the stop to the position selected if nothing selected then add it to the last position.
-	// TODO: FIX THE ADD TO TABLE
-	stoptimesTable.addRow({stop_id: $('#AddStoptoStopTimesSelect').val()})
-});
-
-$(document).on('select2:select', '#AddStoptoStopTimesSelect', function () {
-	// On select remove disabled from the button	
-	$('#AddStoptoStopTimes').prop('disabled', false);
-});
 
 
 
-
-var timeValidator = function (cell, value, parameters) {
-	var r = /^(?:[012345]\d):(?:[012345]\d):(?:[012345]\d)$/
-	return r.test(value)
-};
 
 var stoptimesTable = new Tabulator("#stop-times-table", {
-	selectable: 0,
+	selectable: 1,
 	index: 'stop_sequence',
-	history: true,
-	addRowPos: "top",
+	history: true,	
 	height:500,
 	movableColumns: true,
+	movableRows: true,
 	layout: "fitColumns",
 	persistentFilter: true,
 	footerElement: footerHTMLstoptimes,
 	columns: [
 		// fields: trip_id,arrival_time,departure_time,stop_id,stop_sequence,timepoint,shape_dist_traveled
 		{ rowHandle: true, formatter: "handle", frozen: true, width: 30, minWidth: 30, headerSort: false },
-		{ title: "trip_id", field: "trip_id", visible: true, frozen: true, headerSort: false, width: 150 }, // keeping this visible to avoid confusions
-		{ title: "stop_sequence", field: "stop_sequence", headerFilter: "input", headerSort: false, sorter: "number" },
+		{ title: "trip_id", field: "trip_id", visible: true, frozen: true, headerSort: false, width: 150 }, // keeping this visible to avoid confusions		
+		{ title: "stop_sequence", field: "stop_sequence", headerSort: false, sorter: "number"},
 		{
 			title: "stop_id", field: "stop_id", headerFilter: "input", headerSort: false, tooltip: function (cell) {
 				// Dynamic tooltip
@@ -300,9 +271,71 @@ var stoptimesTable = new Tabulator("#stop-times-table", {
 		// The rowUpdated callback is triggered when a row is updated by the updateRow, updateOrAddRow, updateData or updateOrAddData, functions.
 		$('#saveTimings').removeClass().addClass('btn btn-primary');
 		$('#saveTimings').prop('disabled', false);
-	}
+	},
+	rowMoved:function(row){		
+		// After moving we need to reoarder the stop_sequence.
+		// Loop through rows and set new stop_sequence.
+		var rows = stoptimesTable.getRows();
+		rows.forEach(function (row, index) {
+			// Copy all the arrival_times to the departure times.
+			stoptimesTable.updateRow(row, { stop_sequence: index });
+		});		
+    }
+
 });
 
+
+
+// Tab seletion 
+$('.nav-tabs a[href="#stoptimes"]').on('shown.bs.tab', function (event) {
+	stoptimesTable.redraw();
+	//Setting table header info
+	$("#StopTimesRoute").val($('#routeSelect').select2('data')[0].text);
+	$("#StopTimesTrip").val(selectedrowintrip.trip_id + ' - ' + selectedrowintrip.trip_short_name);
+
+	switch (selectedrowintrip.direction_id) {
+		case "0":
+			directiontext = "Onward";
+			break;
+		case "1":
+			directiontext = "Return"
+			break;
+		default:
+			directiontext = "None"
+			break;
+	}
+	$("#StopTimesDirection").val(directiontext);
+});
+
+$(document).on('click', '#AddStoptoStopTimes', function () {
+	// Add the stop to the position selected if nothing selected then add it to the last position.
+	// if there is a row selected insert the stop after the selected row:
+	var selectedRows = stoptimesTable.getSelectedRows();
+	if (selectedRows.length == 0) {
+		// there is no row selected.
+		var rowCount = stoptimesTable.getDataCount();	
+		stoptimesTable.addRow({stop_id: $('#AddStoptoStopTimesSelect').val(), trip_id: selectedrowintrip.trip_id, stop_sequence:rowCount});
+	}
+	else {
+		// There is a row selected.
+		var row = selectedRows[0].getData();
+		// We need the row pos in the full table not of the selected row.
+		var rowPosition = selectedRows[0].getIndex();
+		console.log(rowPosition);
+		stoptimesTable.addRow({stop_id: $('#AddStoptoStopTimesSelect').val(), trip_id: selectedrowintrip.trip_id},false,rowPosition);
+		//We need to to update the stop_sequence after the insert.
+		var rows = stoptimesTable.getRows();
+		rows.forEach(function (row, index) {
+			// Copy all the arrival_times to the departure times.
+			stoptimesTable.updateRow(row, { stop_sequence: index });
+		});	
+	}	
+});
+
+$(document).on('select2:select', '#AddStoptoStopTimesSelect', function () {
+	// On select remove disabled from the button	
+	$('#AddStoptoStopTimes').prop('disabled', false);
+});
 
 // initiate bootstrap / jquery components like tabs, accordions
 $(function () {
@@ -737,36 +770,6 @@ function getPythonTrips(route_id) {
 	$("#newTripHTML").show('slow');	
 }
 
-// function getPythonStopTimes(trip_id, route_id, direction) {
-// 	let xhr = new XMLHttpRequest();
-// 	//make API call from with this as get parameter name
-// 	xhr.open('GET', `${APIpath}stopTimes?trip=${trip_id}&route=${route_id}&direction=${direction}`);
-// 	xhr.onload = function () {
-// 		if (xhr.status === 200) { //we have got a Response
-// 			console.log(`Loaded timings data for the chosen trip from Server API/stopTimes .`);
-// 			var returndata = JSON.parse(xhr.responseText);
-// 			if (returndata.newFlag) {
-// 				populateStopTimesFromSequence(trip_id, direction);
-// 			}
-// 			else {
-// 				stoptimesTable.setData(returndata.data);
-// 			}
-// 		}
-// 		else {
-// 			console.log('Server request to API/stopTimes failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText + '\nLoading backup.');
-// 			$.toast({
-// 				title: 'Loading stoptimes',
-// 				subtitle: 'There is no data!',
-// 				content: xhr.responseText,
-// 				type: 'error',
-// 				delay: 5000
-// 			});
-// 		}
-// 	};
-// 	xhr.send();
-// }
-
-
 function getPythonRoutes() {
 	let xhr = new XMLHttpRequest();
 	xhr.open('GET', APIpath + `gtfs/route`);
@@ -801,7 +804,8 @@ function populateRouteSelect(data) {
 		placeholder: "Pick a Route",
 		theme: 'bootstrap4',
 		data: select2items,
-		allowClear: true
+		allowClear: true,
+		width: 'resolve'
 	});
 
 	if (data.length == 0) {
@@ -1164,12 +1168,10 @@ function getPythonStopsKeyed() {
 			});
 
 			$("#AddStoptoStopTimesSelect").select2({
-				placeholder: "Pick a stop",
+				placeholder: "Pick a stop to add to stop_times",
 				theme: 'bootstrap4',
 				data: select2items
 			});
-
-
 		}
 		else {
 			console.log('Server request to API/gtfs/stop failed.  Returned status of ' + xhr.status + ', message: ' + xhr.responseText);
