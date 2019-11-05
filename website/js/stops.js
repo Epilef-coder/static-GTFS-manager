@@ -40,10 +40,7 @@ var table = new Tabulator("#stops-table", {
 	addRowPos: "top",
 	ajaxURL: APIpath + 'gtfs/stop', //ajax URL
 	ajaxLoaderLoading: loaderHTML,
-	clipboard: true,
 	footerElement: footerHTML,
-	//clipboardCopySelector:"table",
-	clipboardPasteAction: "replace",
 	columns: [ //Define Table Columns
 		// stop_id,stop_name,stop_lat,stop_lon,zone_id,wheelchair_boarding
 		{ rowHandle: true, formatter: "handle", headerSort: false, frozen: true, width: 30, minWidth: 30 },
@@ -75,50 +72,23 @@ var table = new Tabulator("#stops-table", {
 	},	
 	cellEditing: function (cell) {
 		// pop up the stop on the map when user starts editing
-		mapPop(cell.getRow().getData().stop_id);
+		if (cell.getRow().getData()) {
+			mapPop(cell.getRow().getData().stop_id);
+		}
 	},
 	cellEdited: function (cell) {
 		// on editing a cell, display updated info 
 		// reloadData();
-		var stop_id = cell.getRow().getData().stop_id; //get corresponding stop_id for that cell. Can also use cell.getRow().getIndex()
-		mapPop(stop_id);		
+		if (cell.getRow().getData()) {
+			var stop_id = cell.getRow().getData().stop_id; //get corresponding stop_id for that cell. Can also use cell.getRow().getIndex()
+			mapPop(stop_id);
+		}
 		// $("#undoredo").show('slow');
 	},
 	dataLoaded: function (data) {
 		// this fires after the ajax response and after table has loaded the data. 
 		console.log(`Loaded all stops data from Server API/gtfs/stop .`);
-		reloadData('firstTime');
-		// create new optons for parentstation selection
-		// Filter only stations
-		// if (data.length > 0) {
-		// 	var Stations = data.filter(function (stop) {
-		// 		return stop.location_type === "1";
-		// 	});
-		// 	console.log(Stations);
-		// 	var stationsselect2 = $.map(Stations, function (obj) {
-		// 		obj.id = obj.id || obj.stop_id; // replace identifier
-		// 		obj.text = obj.text || obj.stop_name
-		// 		return obj;
-		// 	});
-		// 	console.log(stationsselect2);
-		// 	$("#new_parent_station").select2({
-		// 		placeholder: "Select a parent station",
-		// 		allowClear: true,
-		// 		theme: 'bootstrap4',
-		// 		data: stationsselect2
-		// 	});
-		// }
-		// // parse the first row keys if data exists.
-		// if (data.length > 0) {
-		// 	AddExtraColumns(Object.keys(data[0]), GTFSDefinedColumns, table);
-		// }
-		// else {
-		// 	console.log("No data so no columns");
-		// }
-		// if (data.length > 0) {
-		// var NumberofRows = data.length + ' row(s)';
-		// $("#NumberofRows").html(NumberofRows);
-		// }
+		reloadData('firstTime');		
 	},
 	ajaxError: function (xhr, textStatus, errorThrown) {
 		console.log('GET request to tableReadSave table=stops failed.  Returned status of: ' + errorThrown);
@@ -404,8 +374,7 @@ $("#CopyStopIDtoZoneID").on("click", function () {
 
 // Form validations
 
-$("#new_location_type").on('change', function () {
-	console.log($(this).val());
+$("#new_location_type").on('change', function () {	
 	if ($(this).val() === '0' || $(this).val() === '1' || $(this).val() === '2') {
 		// location type = 0,1,2 then lat,lon is required
 		$("#new_stop_lat").attr('data-parsley-required', 'true');
@@ -423,7 +392,7 @@ $("#new_location_type").on('change', function () {
 		$("#new_stop_name").attr('data-parsley-required', 'false');
 	}
 	if ($(this).val() === '0') {
-		// parent_station can't be different than 0
+		// parent_station can't be different than empty
 		$("#new_parent_station").val('0');
 	}
 	if ($(this).val() === '1') {
@@ -456,7 +425,7 @@ function addTable() {
 	});
 	console.log(jsonData);
 	table.addRow(jsonData);
-	reloadData();	
+	//reloadData();	
 
 }
 
@@ -502,54 +471,23 @@ function updateTable() {
 		$('#myTab li:first-child a').tab('show');
 	})
 
-	setTimeout(function () {
-		//var row = $("#stops-table").tabulator("getRow",stop_id);
-		//row.scrollTo();
-		//$("#stops-table").tabulator("selectRow", stop_id);
-		table.selectRow(stop_id);
-		//$("#stops-table").tabulator("scrollToRow", stop_id);
-		//table.selectRow(stop_id);
-		// clearing values
-		// $("#targetStopid").val('');
-		// $('#targetStopid').select2().trigger('change');
-		// $("#stop_name").val('');
-		// $("#wheelchair").val('');
-		// $("#newlatlng").val('');
-		// $("#zone_id").val('');
+	setTimeout(function () {		
+		table.selectRow(stop_id);		
 	}, 1000);
 }
 
 
-function reloadData(timeflag = 'normal') {
-	// var data = table.getData();
-	// ;// stop_id_list = data.map(a => a.stop_id); 
-
-	// var select2items = $.map(data, function (obj) {
-	// 	obj.id = obj.id || obj.stop_id; // replace identifier
-	// 	obj.text = obj.text || obj.stop_id + " - " + obj.stop_name
-	// 	return obj;
-	// });	
-	// $("#targetStopid").select2({		
-	// 	placeholder: "Pick a stop",
-	// 	allowClear: true,
-	// 	theme: 'bootstrap4',		
-	// 	data: select2items
-	// });
-
-	// if (data.length == 0) {
-	// 	console.log('No data!');
-	// 	return;
-	// }
-	// 
-
-	// console.log($("#targetStopid").val())
-	// Map update
+function reloadData(timeflag = 'normal') {	
 	reloadMap(timeflag);
 
 }
 
 function reloadMap(timeflag = 'normal', filterFlag = false) {
 	stopsLayer.clearLayers();
+
+	if (table.getDataCount() == 0) {
+		return;
+	}
 
 	var data = [];
 	if (filterFlag)

@@ -129,15 +129,21 @@ function exportGTFS() {
 			type: 'error',
 			delay: 5000
 		});
-		shakeIt('commitName'); return;
+		return;
 	}
-	/*
+	
 	var pw = $("#password").val();
 	if ( ! pw.length ) { 
-		$('#exportGTFSlog').html('<div class="alert alert-danger">Please enter the password.</div>');
-		shakeIt('password'); return;
+		$.toast({
+			title: 'GTFS Export',
+			subtitle: 'No password provided.',
+			content: 'Please enter the password.',
+			type: 'error',
+			delay: 5000
+		});
+		return;
 	}
-	*/
+	
 	$.toast({
 		title: 'GTFS Export',
 		subtitle: 'Processing',

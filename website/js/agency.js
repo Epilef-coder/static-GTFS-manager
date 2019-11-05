@@ -174,7 +174,7 @@ function saveAgency() {
 			type: 'error',
 			delay: 5000
 		});
-		shakeIt('password'); return;
+		return;
 	}
 	$.toast({
 		title: 'Save Agency',

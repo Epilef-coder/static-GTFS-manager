@@ -299,7 +299,7 @@ def exportGTFS (commit):
 
 
 def backupDB():
-    backupfolder = exportFolder + '{:%Y-%m-%d-backup-%H%M}/'.format(datetime.datetime.now())
+    backupfolder = '{:%Y-%m-%d-backup-%H%M}/'.format(datetime.datetime.now())
     logmessage('\nbackupDB: Creating backup of DB in {}.'.format(backupfolder))
     exportGTFS(backupfolder)
     logmessage('Backup created.\n')
