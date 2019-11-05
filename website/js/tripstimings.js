@@ -1267,6 +1267,8 @@ function getPythonAllShapesList() {
 	var jqxhr = $.get(`${APIpath}gtfs/shape/list/id`, function (data) {
 		list = JSON.parse(data);
 		console.log('GET request to API/gtfs/shape/list/id succesful.');
+		var newOption = new Option("", "", false, false);
+		Shapeselect.append(newOption);
 		list.forEach(function (row) {
 			var newOption = new Option(row, row, false, false);
 			Shapeselect.append(newOption);
