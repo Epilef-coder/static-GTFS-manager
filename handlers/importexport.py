@@ -21,8 +21,7 @@ class commitExport(tornado.web.RequestHandler):
             self.set_status(400)
             self.write("Error: invalid commit name.")
             return
-        commitFolder = exportFolder + '{:%Y-%m-%d-}'.format(datetime.datetime.now()) + commit + '/'
-        finalmessage = exportGTFS(commitFolder)
+        finalmessage = exportGTFS(commit)
         # this is the main function. it's in utils/gtfsimportexport.py
 
         self.write(finalmessage)

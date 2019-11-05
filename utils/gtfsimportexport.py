@@ -190,8 +190,11 @@ def importGTFS(zipname):
     logmessage('Finished importing GTFS feed. You can remove the feed zip {} and folder {} from {} if you want.'.format(zipname,unzipFolder,uploadFolder))
     return True
 
-def exportGTFS (folder):
+def exportGTFS (commit):
     # create commit folder
+    folderlink = '{:%Y-%m-%d-}'.format(datetime.datetime.now()) + commit + '/'
+    folder = exportFolder +  folderlink
+
     if not os.path.exists(folder):
         os.makedirs(folder)
     else:
@@ -291,7 +294,7 @@ def exportGTFS (folder):
     gc.collect()
     logmessage('Generated GTFS feed at {}'.format(folder))
 
-    returnmessage = '<p>Success! Generated GTFS feed at <a href="' + folder + 'gtfs.zip' + '">' + folder + 'gtfs.zip<a></b>. Click to download.</p><p>You can validate the feed on <a href="https://gtfsfeedvalidator.transitscreen.com/" target="_blank">GTFS Feed Validator</a> website.</p>'
+    returnmessage = '<p>Success! Generated GTFS feed at <a href="/export/' + folderlink + '/gtfs.zip' + '">/export/' + folderlink + 'gtfs.zip<a>. Click to download.</p>'
     return returnmessage
 
 
