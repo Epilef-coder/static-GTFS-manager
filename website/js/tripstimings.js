@@ -232,7 +232,7 @@ var tripsTable = new Tabulator("#trips-table", {
 			formatter: copyIcon, align: "center", title: "Copy", headerSort: false, tooltip: "Copy this trip to a new trip", width: 50, cellClick: function (e, cell) {
 				var row = cell.getRow();
 				selectedrow = row.getData();
-				downloadreport(selectedrow.trip_id);
+				CopyTrip(selectedrow);
 			}
 		},
 
@@ -627,6 +627,37 @@ function EditTrip(row) {
 		.fail(function () {
 			return false;
 		})
+}
+
+function CopyTrip(row) {
+	// Get the selected trip
+	// Generate a new trip ID.
+	var counter = 1;
+	var tripsTableList = tripsTable.getData().map(a => a.trip_id);
+	var allTrips = trip_id_list.concat(tripsTableList);
+
+	// loop till you find an available id:
+	while (allTrips.indexOf(row.route_id + pad(counter)) > -1)
+		counter++;	
+	var new_trip_id = row.route_id + pad(counter);
+
+	tripsTable.addRow({route_id: row.route_id, 
+		trip_id: new_trip_id, 
+		service_id: row.service_id, 
+		direction_id: row.direction_id, 
+		trip_headsign: row.trip_headsign,
+		trip_short_name: row.trip_short_name, 
+		block_id: row.block_id, 
+		shape_id: row.shape_id, 
+		wheelchair_accessible: row.wheelchair_accessible, 		
+		bikes_allowed: row.bikes_allowed});
+	$.toast({
+		title: 'Copy Trip',
+		subtitle: 'Trip added',
+		content: 'Save the table before editing the trip.',
+		type: 'success',
+		delay: 3000
+	});
 }
 
 function ViewTrip(row) {
@@ -1267,6 +1298,7 @@ function getPythonAllShapesList() {
 	var jqxhr = $.get(`${APIpath}gtfs/shape/list/id`, function (data) {
 		list = JSON.parse(data);
 		console.log('GET request to API/gtfs/shape/list/id succesful.');
+		// Allow empty row.
 		var newOption = new Option("", "", false, false);
 		Shapeselect.append(newOption);
 		list.forEach(function (row) {
@@ -1277,7 +1309,6 @@ function getPythonAllShapesList() {
 		.fail(function () {
 			console.log('GET request to API/gtfs/shape/list/id failed.')
 		});
-
 }
 
 function resetTimings() {
