@@ -873,7 +873,7 @@ function CreateStopTimes(stoptimesstoplist) {
 		row['departure_time'] = '01:00:00';
 		row['timepoint'] = '';
 		row['shape_dist_traveled'] = '';
-		row['pcikup_type'] = '';
+		row['pickup_type'] = '';
 		row['drop_off_type'] = '';
 		timesArray.push(row);
 	});
