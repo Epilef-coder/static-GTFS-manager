@@ -29,7 +29,8 @@ var Extralayers = cfg.MapProviders.filter(x => x.default === false);
 var defaultlayer = !defaultlayer ? 'OpenStreetMap.Mapnik' : defaultlayer.id;
 
 var LayerOSM = L.tileLayer.provider(defaultlayer);
-
+var stopsLayer = L.markerClusterGroup();
+var LoadedShape;
 var baseLayers = {
 	"OpenStreetMap": LayerOSM
 };
@@ -69,6 +70,10 @@ var map = new L.Map('mapId', {
 	layers: [LayerOSM],
 	scrollWheelZoom: true
 });
+var overlays = {
+	'Stops': stopsLayer
+}
+var layerControl = L.control.layers(baseLayers, overlays, { collapsed: true, autoZIndex: false }).addTo(map);
 
 
 var selectedrowintrip;
@@ -651,14 +656,68 @@ function ViewTrip(row) {
 		});
 }
 
+function drawShape(shapeArray) {
+	//shapeLine.clearLayers(); // clearing the layer
+	if (map.hasLayer(LoadedShape)) {
+		map.removeLayer(LoadedShape);
+	}
+	//var lineColor = ( whichMap==0? '#990000': '#006600');
+	var lineColor = 'purple'; //switching the markers' colors
+	var latlngs = [];
+	shapeArray.forEach(function (row) {
+		latlngs.push([row['shape_pt_lat'], row['shape_pt_lon']]);
+	});
+	LoadedShape = L.polyline(latlngs, { color: lineColor, weight: 3 })
+	//const polygon = L.polygon(latlngs, {color: 'red'}).addTo(map);
+	layerControl.addOverlay(LoadedShape, 'Loaded Shape');
+	map.addLayer(LoadedShape);	
+	map.fitBounds(LoadedShape.getBounds(), { padding: [40, 20], maxZoom: 20 });
+}
+
 function ViewMap(stop_times, shape_id) {
 	if (shape_id) {
 		// Get the shape info.
-		// Get the polylinestring for this.
+		var jqxhr = $.get(`${APIpath}gtfs/shape/${shape_id}`, function (data) {
+			var shapeArray = JSON.parse(data);
+			console.log(`GET request to API/gtfs/shape/${shape_id} succesful.`);
+			drawShape(shapeArray);
+		})
+			.fail(function () {
+				console.log(`GET request to API/gtfs/shape/${shape_id} failed.`);
+			});
 	}
-	
+	stopsLayer.clearLayers();
+	stop_times.forEach(function (stoploc) {
+		var lat = allStopsKeyed.find(x => x.stop_id === stoploc.stop_id).stop_lat;
+		var lon = allStopsKeyed.find(x => x.stop_id === stoploc.stop_id).stop_lon;		
+		
+		// making label as initial of stop name, and handling in case its a number.
+		var label = allStopsKeyed.find(x => x.stop_id === stoploc.stop_id).stop_name;
+		var labelShort;
+		if (isNaN(label))  // check if not a number. from https://www.mkyong.com/javascript/check-if-variable-is-a-number-in-javascript/
+			labelShort = label.substring(0, 2);
+		else {
+			label = label.toString();
+			// We can show upto 3 chars. So use that. 
+			if (label.length > 3)
+				label = label.substring(0, 2) + '_'; // from https://www.w3schools.com/jsref/jsref_substring.asp
+			labelShort = label;
+		}
+
+		var stopmarker = L.marker([lat, lon], {
+			icon: L.divIcon({
+				className: `stop-divicon`,
+				iconSize: [17, 17],
+				html: labelShort
+			})
+		});
+		// }		
+		stopmarker.addTo(stopsLayer);		
+	});
 	// Show the modal 
 	$('#mapModal').modal('show');
+	map.addLayer(stopsLayer);
+	map.flyToBounds(stopsLayer.getBounds(), { padding: [20, 20]});
 }
 
 
