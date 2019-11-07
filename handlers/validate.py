@@ -28,7 +28,7 @@ class googlevalidate(tornado.web.RequestHandler):
         # adapted from https://github.com/ed-g/transitfeed_web/blob/1e9be7152823641c450612b27cace99a1efe0b4f/transitfeed_web/run_transitfeed_web_server.py
         # Make a export of the current gtfs files to a temp folder
         tempfilename = str(uuid.uuid4())
-        commitFolder = exportFolder + tempfilename + '/'
+        commitFolder = tempfilename + '/'
         exportGTFS(commitFolder)
 
         # Pretend to pass command-line arguments to feedvalidator. It returns an
@@ -57,7 +57,8 @@ class googlevalidate(tornado.web.RequestHandler):
             f.close()
         # Remove the custom older.
         output_file.close()
-        shutil.rmtree(commitFolder)
+        remove_folder = exportFolder + '{%H%M%S}'.format(datetime.datetime.now()) + '-' + commitFolder
+        shutil.rmtree(remove_folder)
 
 class pastreportsgtfsvalidate(tornado.web.RequestHandler):
     def get(self):

@@ -88,7 +88,10 @@ var table = new Tabulator("#stops-table", {
 	dataLoaded: function (data) {
 		// this fires after the ajax response and after table has loaded the data. 
 		console.log(`Loaded all stops data from Server API/gtfs/stop .`);
-		reloadData('firstTime');		
+		// Filter the stops that are possible options for parent_stations
+		var parentstations = data.filter(x => x.location_type == '1');
+		AddParentStations(parentstations);		
+		reloadData('firstTime');
 	},
 	ajaxError: function (xhr, textStatus, errorThrown) {
 		console.log('GET request to tableReadSave table=stops failed.  Returned status of: ' + errorThrown);
@@ -128,6 +131,19 @@ $(document).on("click", "#LinkShowHideColumn", function () {
 
 $(document).on("click", "#LinkCopyTimeZones", function () {
 	CopyTimeZone();
+});
+
+// If we paste a lat,lon combination in the lat field, this part will split it and put it in the right boxes.
+$("#new_stop_lat").on('paste', function(e) {
+	// check if we past a lat, lon combination then split it and past it in the lat lon text boxed	
+	var pastedData = e.originalEvent.clipboardData.getData('text');
+	// var pasted = $(self).val();
+	const [longitude, latitude] = pastedData.split(',');
+	if (longitude && latitude) {		
+		$("#new_stop_lat").val(longitude.trim());
+		$("#new_stop_lon").val(latitude.trim());
+		return false; // Prevent the default handler from running.
+	}	
 });
 
 
@@ -393,10 +409,15 @@ $("#new_location_type").on('change', function () {
 	}
 	if ($(this).val() === '0') {
 		// parent_station can't be different than empty
-		$("#new_parent_station").val('0');
+		$("#new_parent_station").val('');
 	}
 	if ($(this).val() === '1') {
-		// parent_station must be filled
+		// parent_station must not be filled
+		$("#new_parent_station").val('');
+		$("#new_parent_station").attr('data-parsley-required', 'false');
+	}
+	if ($(this).val() === '2' || $(this).val() === '3' || $(this).val() === '4') {
+		// parent_station must be filled		
 		$("#new_parent_station").attr('data-parsley-required', 'true');
 	}
 });
@@ -413,9 +434,20 @@ function CopyStopIDtoZoneID() {
 	});
 }
 
+function AddParentStations(parentstations) {
+	// First remove all possible options
+	$("#new_parent_station option[value!='']").each(function() {
+		$(this).remove();
+	});
+	// Add the parentstations to the selectbox.
+	parentstations.forEach(function(parentstation) {
+		var newOptionparentstation = new Option(parentstation.stop_name, parentstation.stop_id, false, false);            
+		$("#new_parent_station").append(newOptionparentstation);
+	});
+}
+
 function addTable() {
-	// Loop through all stops columns and add it tho a temp object for insert.
-	var stop_id = $("#new_stop_id").val();
+	// Loop through all stops columns and add it tho a temp object for insert.	
 	var jsonData = {};
 	NewStopColumnsList.forEach(function (selectcolumn) {
 		// get the column selectbox value
@@ -423,6 +455,10 @@ function addTable() {
 		var gtfscolumnname = selectcolumn.replace('new_', '');
 		jsonData[gtfscolumnname] = importcolumn;
 	});
+	if (jsonData.location_type == 0) {
+		// Fix the parentstation validation.
+		jsonData.parent_station == '';
+	}
 	console.log(jsonData);
 	table.addRow(jsonData);
 	//reloadData();	
