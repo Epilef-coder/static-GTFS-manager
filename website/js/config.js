@@ -92,8 +92,8 @@ $("#SaveApiKeys").click(function () {
 	var url = 'API/app/config';
 	var MapProviders = ConfigMapProvider.getData();
 	var GTFS = { Timezone: $("#GTFSTimezone").val(), Currency: $("#GTFSCurrency").val() }
-	var APP = { WideScreen: true //$("WideScreen").val()
- }
+	var APP = { Browser: $("#Browser").val(), Tracking: $("#Tracking").val() } //$("WideScreen").val()
+ 
 
 	var postData = { HereAppID: $("#HereAppId").val(), HereAppCode: $("#HereAppCode").val(), TomTomApi: $("#ApiKeyTomTom").val(), GraphHopperApi: $("#ApiKeyGraphhopper").val(), MAPBOXAPI: $("#ApiKeyMapbox").val(), MapProviders: MapProviders, GTFS: GTFS, APP: APP };
 	// jQuery .post method is used to send post request.

@@ -20,6 +20,7 @@ sequenceDBfile = os.path.join(root,'db/sequence.json')
 passwordFile = os.path.join(root,'pw/rsa_key.bin')
 configFile = 'config.json'
 chunkRulesFile = 'chunkRules.json'
+appconfig = 'apikeys.json'
 
 debugMode = False # using this flag at various places to do or not do things based on whether we're in development or production
 
@@ -30,3 +31,5 @@ with open(configFolder + chunkRulesFile) as f:
     chunkRules = json.load(f)
 with open(configFolder + configFile) as f:
     configRules = json.load(f)
+with open(configFolder + appconfig) as f:
+    appconfig = json.load(f)

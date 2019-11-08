@@ -220,7 +220,7 @@
 										</div>
 									</div>
 								</div>
-								<!-- <div class="card">
+								<div class="card">
 									<div class="card-header" id="headingFour">
 										<h2 class="mb-0">
 											<button class="btn btn-link collapsed" type="button" data-toggle="collapse"
@@ -233,11 +233,24 @@
 									<div id="collapseFour" class="collapse" aria-labelledby="headingFour"
 										data-parent="#accordionExample">
 										<div class="card-body">
+										<p>
+											Changing settings here will require to restart the executable or python program.
+										</p>
 											<div class="form-group row">
-												<label for="WideScreen" class="col-sm-2 col-form-label"
-													id="label-apikey">Use Wide screen</label>
+												<label for="Browser" class="col-sm-2 col-form-label"
+													id="label-Browser">Start the browser with starting the program</label>
 												<div class="col-sm-10">
-													<select id="WideScreen" class="form-control">
+													<select id="Browser" class="form-control">
+														<option value="false">No</option>
+														<option value="true">Yes</option>
+													</select>
+												</div>
+											</div>
+											<div class="form-group row">
+												<label for="Tracking" class="col-sm-2 col-form-label"
+													id="label-Tracking">Allow Tracking by developer</label>
+												<div class="col-sm-10">
+													<select id="Tracking" class="form-control">
 														<option value="false">No</option>
 														<option value="true">Yes</option>
 													</select>
@@ -245,7 +258,7 @@
 											</div>
 										</div>
 									</div>
-								</div> -->
+								</div>
 							</div>
 							<button class="btn btn-primary" id="SaveApiKeys">Save the config</button>
 						</div>

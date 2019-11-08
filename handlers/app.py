@@ -63,18 +63,19 @@ class AppDatabaseGTFSImport(tornado.web.RequestHandler):
 
 class AppConfig(tornado.web.RequestHandler):
         def get(self):
-                # get the Argument that User had passed as name in the get request
-                # userInput=self.get_argument('name')
-                self.set_header("Content-Type", "application/x-json")
-                with open(configFolder + 'apikeys.json') as f:
-                        apikeys = json.load(f)
-                        self.write(apikeys)
+            # get the Argument that User had passed as name in the get request
+            # userInput=self.get_argument('name')
+            logmessage('\nAPI/app/Config GET call')
+            self.set_header("Content-Type", "application/x-json")
+            with open(configFolder + 'apikeys.json') as f:
+                    apikeys = json.load(f)
+                    self.write(apikeys)
 
         def post(self):
-                with open(configFolder + 'apikeys.json','w') as f:
-                        f.write(self.request.body.decode('UTF-8'))
-                        self.write(json.dumps({'status': 'ok', 'data': []}))
-                        #self.write(json.dumps({'status': 'ok', 'data': []}))
+            logmessage('\nAPI/app/Config POST call')
+            with open(configFolder + 'apikeys.json','w') as f:
+                f.write(self.request.body.decode('UTF-8'))
+                self.write(json.dumps({'status': 'ok', 'data': []}))
 
 
 class Appstats(tornado.web.RequestHandler):

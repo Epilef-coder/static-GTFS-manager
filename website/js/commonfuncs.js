@@ -15,11 +15,16 @@ $(document).ready(function() {
 	$('[data-toggle="popover"]').popover(); 
 
 	$('[data-toggle="tooltip"]').tooltip(); 
-
-	// Usage tracker
-	var tracker = `<!-- Matomo Image Tracker-->
-	<img src="http://nikhilvj.co.in/tracking/piwik.php?idsite=2&amp;rec=1&amp;action_name=${pageName}" style="border:0" alt="" />
-	<!-- End Matomo -->`;
+	var tracker = '';
+	if (cfg.APP.Tracker) {
+		// Usage tracker
+		tracker = `<!-- Matomo Image Tracker-->
+		<img src="http://nikhilvj.co.in/tracking/piwik.php?idsite=2&amp;rec=1&amp;action_name=${pageName}" style="border:0" alt="" />
+		<!-- End Matomo -->`;
+	}
+	else {
+		tracker = '';
+	}
 
 
 	// Footer

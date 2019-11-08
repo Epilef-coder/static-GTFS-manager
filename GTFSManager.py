@@ -1,7 +1,6 @@
 import tornado.web
 import tornado.ioloop
 import webbrowser
-# import url handlers
 
 from urls import url_patterns
 
@@ -11,7 +10,7 @@ from settings import *
 from utils.logmessage import logmessage
 from utils.piwiktracking import logUse
 
-print('\n\nstatic GTFS Manager')
+print('Static GTFS Manager')
 print('Fork it on Github: https://github.com/WRI-Cities/static-GTFS-manager/')
 print('Starting up the program, loading dependencies, please wait...\n\n')
 
@@ -31,27 +30,37 @@ for folder in [uploadFolder, xmlFolder, logFolder, configFolder, dbFolder, expor
 logmessage('Loaded dependencies, starting static GTFS Manager program.')
 
 
-def make_app():
-    return tornado.web.Application(url_patterns)
-
+# def make_app():
+#     return tornado.web.Application(url_patterns)
 
 # for catching Ctrl+C and exiting gracefully. From https://nattster.wordpress.com/2013/06/05/catch-kill-signal-in-python/
-def signal_term_handler(signal, frame):
-    # to do: Make this work in windows, ra!
-    print(
-        '\nClosing Program.\nThank you for using static GTFS Manager. Website: https://github.com/WRI-Cities/static-GTFS-manager/\n')
-    sys.exit(0)
 
+class MyApplication(tornado.web.Application):
+    is_closing = False
+
+    def signal_handler(self, signum, frame):
+        print('exiting...')
+        self.is_closing = True
+
+    def try_exit(self):
+        if self.is_closing:
+            # clean up here
+            tornado.ioloop.IOLoop.instance().stop()
+            print(
+                '\nClosing Program.\nThank you for using static GTFS Manager. Website: https://github.com/WRI-Cities/static-GTFS-manager/\n')
+            print('exit success')
+            sys.exit(0)
+
+application = MyApplication(url_patterns)
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGINT, signal_term_handler)
     # Start the background task:
-    app = make_app()
+    signal.signal(signal.SIGINT, application.signal_handler)
     portnum = 5000
     while True:  # loop to increment the port number till we find one that isn't occupied
         try:
             port = int(os.environ.get("PORT", portnum))
-            app.listen(port)
+            application.listen(port)
             break
         except OSError:
             portnum += 1
@@ -60,9 +69,19 @@ if __name__ == "__main__":
                 sys.exit()
 
     thisURL = "http://localhost:" + str(port)
-    webbrowser.open(thisURL)
+    if 'APP' in appconfig:
+        if 'Browser' in appconfig['APP']:
+            if appconfig['APP']['Browser'] == 'true':
+                webbrowser.open(thisURL)
+        else:
+            webbrowser.open(thisURL)
+    else:
+        webbrowser.open(thisURL)
+
     logmessage(
         "\n\nOpen {} in your Web Browser if you don't see it opening automatically in 5 seconds.\n\nNote: If this is through docker, then it's not going to auto-open in browser, don't wait.".format(
             thisURL))
     logUse()
+    # Handle Control-C on Windows also
+    tornado.ioloop.PeriodicCallback(application.try_exit, 100).start()
     tornado.ioloop.IOLoop.current().start()
