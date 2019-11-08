@@ -417,8 +417,10 @@ $("#new_location_type").on('change', function () {
 		$("#new_parent_station").attr('data-parsley-required', 'false');
 	}
 	if ($(this).val() === '2' || $(this).val() === '3' || $(this).val() === '4') {
-		// parent_station must be filled		
+		// parent_station must be filled
+		// Because this has a parenstation, theere must be no timezone defined	
 		$("#new_parent_station").attr('data-parsley-required', 'true');
+		$("#new_stop_timezone").val('');
 	}
 });
 
@@ -458,6 +460,10 @@ function addTable() {
 	if (jsonData.location_type == 0) {
 		// Fix the parentstation validation.
 		jsonData.parent_station == '';
+	}
+	if (jsonData.parent_station != '') {
+		// If there is a parentstation defined, the stop_timezone must be empty
+		jsonData.stop_timezone == '';
 	}
 	console.log(jsonData);
 	table.addRow(jsonData);

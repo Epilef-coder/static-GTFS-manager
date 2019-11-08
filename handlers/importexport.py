@@ -24,7 +24,7 @@ class commitExport(tornado.web.RequestHandler):
         finalmessage = exportGTFS(commit)
         # this is the main function. it's in utils/gtfsimportexport.py
 
-        self.write(finalmessage)
+        self.write(finalmessage['message'])
         end = time.time()
         logmessage("commitExport GET call took {} seconds.".format(round(end-start,2)))
         logUse('commitExport')

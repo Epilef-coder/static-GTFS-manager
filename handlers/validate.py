@@ -21,6 +21,7 @@ from settings import exportFolder, reportFolder
 class googlevalidate(tornado.web.RequestHandler):
     def get(self):
         start = time.time()
+        logmessage("/API/app/gtfs/validate GET call")
         # API/commitExport?commit=${commit}
         googletransitenabled = self.get_argument('googletransit', default='')
         savereport = self.get_argument('savereport', default='')
@@ -29,27 +30,32 @@ class googlevalidate(tornado.web.RequestHandler):
         # Make a export of the current gtfs files to a temp folder
         tempfilename = str(uuid.uuid4())
         commitFolder = tempfilename + '/'
-        exportGTFS(commitFolder)
+        statusbackup = exportGTFS(commitFolder)
+
+        validatefolder = statusbackup['folder']
 
         # Pretend to pass command-line arguments to feedvalidator. It returns an
         # "options" object which is used to configure to the validation function.
         save_argv = sys.argv  # save actual argv
+        logmessage("Begin Validation of GTFS File")
         sys.argv = ['fakeout-argv-for-feedparser.py', 'fake-placeholder-gtfs-file.zip']
         options = feedvalidator.ParseCommandLineArguments()[1]
         if bool(googletransitenabled):
             options.extension = 'extensions.googletransit'
+            logmessage("Enableing GoogleTransit Extension")
         sys.argv = save_argv  # restore argv
 
         output_file = StringIO()
-        feedvalidator.RunValidationOutputToFile(commitFolder + '/gtfs.zip', options, output_file)
+        feedvalidator.RunValidationOutputToFile(validatefolder + 'gtfs.zip', options, output_file)
         resultreport = output_file.getvalue()
         # return output_file.getvalue()
         self.write(resultreport)
 
         end = time.time()
-        logmessage("commitExport GET call took {} seconds.".format(round(end-start,2)))
+
         # Save the files to validation reports location
         if bool(savereport):
+            logmessage("Saving Report to html file.")
             if not os.path.exists(reportFolder):
                 os.makedirs(reportFolder)
             f = open(reportFolder + '/' + tempfilename + '.html', "w", encoding='utf8')
@@ -57,8 +63,8 @@ class googlevalidate(tornado.web.RequestHandler):
             f.close()
         # Remove the custom older.
         output_file.close()
-        remove_folder = exportFolder + '{%H%M%S}'.format(datetime.datetime.now()) + '-' + commitFolder
-        shutil.rmtree(remove_folder)
+        shutil.rmtree(validatefolder)
+        logmessage("/API/app/gtfs/validate GET call took {} seconds.".format(round(end - start, 2)))
 
 class pastreportsgtfsvalidate(tornado.web.RequestHandler):
     def get(self):

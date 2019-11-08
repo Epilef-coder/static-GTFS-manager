@@ -192,12 +192,20 @@ def importGTFS(zipname):
 
 def exportGTFS (commit):
     # create commit folder
+    # TODO: Generate a object to return, the object must contain: Folder of export, status message, and filename of download. So this procedure is also usable for the valtidation functions.
+    exportStatus = {}
+
     folderlink = '{:%Y-%m-%d-}'.format(datetime.datetime.now()) + commit + '/'
-    folder = exportFolder +  folderlink
+    folder = exportFolder + folderlink
+
+    exportStatus['success'] = False
+    exportStatus['folder'] = folder
+    exportStatus['message'] = ''
 
     if not os.path.exists(folder):
         os.makedirs(folder)
     else:
+        exportStatus['message'] = 'Folder with same name already exists: ' + folder + '. Please choose a different commit name.'
         returnmessage = 'Folder with same name already exists: ' + folder + '. Please choose a different commit name.'
         return returnmessage
 
@@ -292,10 +300,13 @@ def exportGTFS (commit):
 
     zf.close()
     gc.collect()
-    logmessage('Generated GTFS feed at {}'.format(folder))
 
-    returnmessage = '<p>Success! Generated GTFS feed at <a href="/export/' + folderlink + '/gtfs.zip' + '">/export/' + folderlink + 'gtfs.zip<a>. Click to download.</p>'
-    return returnmessage
+    logmessage('Generated GTFS feed at {}'.format(folder))
+    exportStatus['success'] = True
+    exportStatus['folder'] = folder
+    exportStatus['message'] = '<p>Success! Generated GTFS feed at <a href="/export/' + folderlink + '/gtfs.zip' + '">/export/' + folderlink + '/gtfs.zip<a>. Click to download.</p>'
+    # returnmessage =
+    return exportStatus
 
 
 def backupDB():
