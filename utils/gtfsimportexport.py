@@ -149,7 +149,7 @@ def importGTFS(zipname):
                     # print('last ID: ' + IDList[-1])
                     workChunk = chunk[ chunk[IDcol].isin(IDList[:-1]) ]
                     if len(carryOverChunk):
-                        workChunk = pd.concat([carryOverChunk, workChunk],ignore_index=True)
+                        workChunk = pd.concat([carryOverChunk, workChunk],ignore_index=True, sort=False)
                     carryOverChunk = chunk[ chunk[IDcol] == IDList[-1] ]
 
                     fileCounter += 1

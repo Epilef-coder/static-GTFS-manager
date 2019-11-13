@@ -160,7 +160,6 @@ var defaultlayer = cfg.MapProviders.find(x => x.default === true);
 var Extralayers = cfg.MapProviders.filter(x => x.default === false);
 // Set openstreetmap as the defaultlayer if nothing is defined as default.
 var defaultlayer = !defaultlayer ? 'OpenStreetMap.Mapnik' : defaultlayer.id;
-
 var LayerOSM = L.tileLayer.provider(defaultlayer);
 
 var baseLayers = {
