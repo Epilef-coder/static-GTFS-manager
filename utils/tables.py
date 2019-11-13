@@ -122,7 +122,7 @@ def replaceTableDB(tablename, data, key=None, value=None):
             logmessage('Note: {} does not have any data.'.format(h5File))
             oldLen = 0
 
-        df3 = pd.concat([df, xdf], ignore_index=True)
+        df3 = pd.concat([df, xdf], ignore_index=True, sort=False)
         df3.to_hdf(dbFolder + h5File, 'df', format='table', mode='w', complevel=1)
 
         logmessage('Replaced {} entries for {}={} with {} new entries in {}.' \

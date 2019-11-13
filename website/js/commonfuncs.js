@@ -16,10 +16,10 @@ $(document).ready(function() {
 
 	$('[data-toggle="tooltip"]').tooltip(); 
 	var tracker = '';
-	if (cfg.APP.Tracker) {
+	if (cfg.APP.Tracking) {
 		// Usage tracker
 		tracker = `<!-- Matomo Image Tracker-->
-		<img src="http://nikhilvj.co.in/tracking/piwik.php?idsite=2&amp;rec=1&amp;action_name=${pageName}" style="border:0" alt="" />
+		<img src="https://nikhilvj.co.in/tracking/piwik.php?idsite=2&amp;rec=1&amp;action_name=${pageName}" style="border:0" alt="" />
 		<!-- End Matomo -->`;
 	}
 	else {
