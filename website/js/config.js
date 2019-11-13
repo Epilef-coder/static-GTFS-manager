@@ -63,6 +63,8 @@ $(document).ready(function () {
 	$("#ApiKeyTomTom").val(cfg.TomTomApi);
 	$("#HereAppCode").val(cfg.HereAppCode);
 	$("#HereAppId").val(cfg.HereAppID);
+	$("#Browser").val(cfg.APP.Browser);
+	$("#Tracking").val(cfg.APP.Tracking);
 
 	$("#GTFSTimezone").select2({
 		placeholder: "Select a timezone",
