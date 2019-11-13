@@ -466,6 +466,13 @@ function addTable() {
 	}
 	console.log(jsonData);
 	table.addRow(jsonData);
+	$.toast({
+		title: 'Add Stops',
+		subtitle: 'Success',
+		content: 'Added stop to list.',
+		type: 'success',
+		delay: 3000
+	});
 	//reloadData();	
 
 }

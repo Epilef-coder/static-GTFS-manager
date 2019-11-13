@@ -81,6 +81,14 @@ $(document).ready(function () {
 		data: CurrencyList
 	});
 	$("#GTFSCurrency").val(cfg.GTFS.Currency).trigger("change");
+
+	$("#GTFSLanguage").select2({
+		placeholder: "Select a Language",
+		allowClear: true,
+		theme: 'bootstrap4',
+		data: LanguageList
+	});
+	$("#GTFSLanguage").val(cfg.GTFS.Langauge).trigger("change");
 });
 
 $("#SaveApiKeys").click(function () {
@@ -93,7 +101,7 @@ $("#SaveApiKeys").click(function () {
 	});
 	var url = 'API/app/config';
 	var MapProviders = ConfigMapProvider.getData();
-	var GTFS = { Timezone: $("#GTFSTimezone").val(), Currency: $("#GTFSCurrency").val() }
+	var GTFS = { Timezone: $("#GTFSTimezone").val(), Currency: $("#GTFSCurrency").val(), Language: $("#GTFSLanguage").val() }
 	var APP = { Browser: $("#Browser").val(), Tracking: $("#Tracking").val() } //$("WideScreen").val()
  
 
