@@ -88,7 +88,7 @@ $(document).ready(function () {
 		theme: 'bootstrap4',
 		data: LanguageList
 	});
-	$("#GTFSLanguage").val(cfg.GTFS.Langauge).trigger("change");
+	$("#GTFSLanguage").val(cfg.GTFS.Language).trigger("change");
 });
 
 $("#SaveApiKeys").click(function () {
