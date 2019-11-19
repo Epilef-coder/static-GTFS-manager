@@ -99,6 +99,25 @@ $(document).on("click", "#LinkShowHideColumn", function () {
 	ShowHideColumn(table);
 });
 
+// custom form validation
+
+// Custom validator to check the agency_id validation
+window.Parsley.addValidator('validateagencyid', {
+	validateString: function(value) {
+		let data = table.getData();
+		agency_id_list = data.map(a => a.agency_id);
+		if (agency_id_list.includes(value)) {
+			return false;
+		}
+		else {
+			return true;
+		}	  	
+	},
+	messages: {
+	  en: 'This agency_id already exists. Chose a new one!'
+	}
+  });
+
 // ###################
 // commands to run on page load
 $(document).ready(function () {
@@ -221,8 +240,7 @@ function saveAgency() {
 	xhr.send(JSON.stringify(data)); // this is where POST differs from GET : we can send a payload instead of just url arguments.
 }
 
-function addAgency() {
-	var data = table.getData();
+function addAgency() {	
 	var agency_id = $('#agency_id').val().toUpperCase().replace(/[^A-Z0-9-_]/g, "");
 	var agency_name = $('#agency_name').val();
 	var agency_url = $('#agency_url').val();
@@ -230,39 +248,15 @@ function addAgency() {
 	var agency_lang = $('#agency_lang').val();
 	var agency_phone = $('#agency_phone').val();
 	var agency_fare_url = $('#agency_fare_url').val();
-	var agency_email = $('#agency_email').val();
-
-	$('#agency_id').val(agency_id);
-	if (!agency_id.length) {
-		$.toast({
-			title: 'Add Agency',
-			subtitle: 'Failed to Add',
-			content: 'Give a valid id please.',
-			type: 'error',
-			delay: 5000
-		});
-		return;
-	}
-
-	var agency_id_list = data.map(a => a.agency_id);
-	var isPresent = agency_id_list.indexOf(agency_id) > -1;
-	if (isPresent) {		
-		$.toast({
-			title: 'Add Agency',
-			subtitle: 'Failed to Add',
-			content: agency_id + ' is already there.',
-			type: 'error',
-			delay: 5000
-		});
-	} else {
-		table.addData([{ 'agency_id': agency_id, 'agency_name': agency_name, 'agency_url': agency_url, 'agency_timezone': agency_timezone, 'agency_lang': agency_lang, 'agency_phone': agency_phone, 'agency_fare_url':agency_fare_url, 'agency_email': agency_email }]);
-		
-		$.toast({
-			title: 'Add Agency',
-			subtitle: 'Success',
-			content: 'Added agency_id ' + agency_id,
-			type: 'success',
-			delay: 5000
-		});
-	}
+	var agency_email = $('#agency_email').val();	
+	// Agency_id check is performd add the validation of the form.	
+	table.addData([{ 'agency_id': agency_id, 'agency_name': agency_name, 'agency_url': agency_url, 'agency_timezone': agency_timezone, 'agency_lang': agency_lang, 'agency_phone': agency_phone, 'agency_fare_url':agency_fare_url, 'agency_email': agency_email }]);	
+	$.toast({
+		title: 'Add Agency',
+		subtitle: 'Success',
+		content: 'Added agency_id ' + agency_id,
+		type: 'success',
+		delay: 5000
+	});
+	
 }

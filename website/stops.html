@@ -172,13 +172,13 @@
                                         </div>                                        
                                         <div class="tab-pane fade" id="new" role="tabpanel" aria-labelledby="new-tab">
                                             <h3>Add a new stop</h3>
-                                            <div id="Form-AddAgency" data-parsley-validate>
+                                            <div id="Form-AddStop" data-parsley-validate>
                                                 <div class="row form-group">
                                                     <div class="col col-md-3">
                                                         <label for="new_stop_id" class="form-control-label">stop_id</label>
                                                     </div>
                                                     <div class="col-12 col-md-9">
-                                                        <input id='new_stop_id' placeholder="Give a stop_id" type="text" class="form-control" required autocomplete="off" data-parsley-required-message="You have to add a stop_id, without it it won't work!">
+                                                        <input id='new_stop_id' placeholder="Give a stop_id" type="text" class="form-control" required autocomplete="off" data-parsley-required-message="You have to add a stop_id, without it it won't work!" data-parsley-validatestopid="">
                                                         <small id="new_stop_idHelp" class="form-text text-muted">Identifies a stop, station, or station entrance</small>
                                                     </div>
                                                 </div>

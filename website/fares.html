@@ -165,26 +165,26 @@
 															<div id="Form-AddFareAttributes" data-parsley-validate>
 																<div class="form-group">
 																	<label for="targetFareid">Create a fare_id</label>
-																	<input autocapitalize="characters" id='targetFareid' placeholder='fare_id' size="5" class="form-control" required autocomplete="off" data-parsley-required-message="You have to add a fare_id, without it it won't work!">
+																	<input autocapitalize="characters" id='targetFareid' placeholder='fare_id' size="5" class="form-control" required autocomplete="off" data-parsley-required-message="You have to add a fare_id, without it it won't work!" data-parsley-validatefareid="">
 																</div>
 																<div class="form-group">
-																	<label for="targetFareid">Set a price</label>
+																	<label for="price">Set a price</label>
 																	<input id='price' type="number" style="width:150px;" class="form-control" required autocomplete="off" data-parsley-required-message="You have to add a price, without it it won't work!">
 																</div>
 																<div class="form-group">
-																	<label for="targetFareid">Currency:</label>
+																	<label for="currency">Currency:</label>
 																	<select id="currency" class="form-control" required autocomplete="off" data-parsley-required-message="You have to select a currency, without it it won't work!"></select>
 																	<small><a href="https://en.wikipedia.org/wiki/ISO_4217#Active_codes" target="_blank">(ISO4217 codes only)</a></small>
 																</div>
 																<div class="form-group">
-																	<label for="targetFareid">Payment method:</label>
+																	<label for="paymentmethod">Payment method:</label>
 																	<select id="paymentmethod" class="form-control" required autocomplete="off" data-parsley-required-message="You have to select Payment method, without it it won't work!">
 																		<option value="0">On boarding</option>
 																		<option value="1">Before boarding</option>
 																	</select>
 																</div>
 																<div class="form-group">
-																	<label for="targetFareid">Transfers:</label>
+																	<label for="transfers">Transfers:</label>
 																	<select id="transfers" class="form-control" required autocomplete="off" data-parsley-required-message="You have to select the number of Transfers, without it it won't work!">
 																		<option value="">Unlimited transfers</option>
 																		<option value="0">No transfers are permitted on this fare</option>
@@ -193,11 +193,11 @@
 																	</select>
 																</div>
 																<div class="form-group">
-																	<label for="targetFareid">Agency:</label>
+																	<label for="agency_id">Agency:</label>
 																	<select id="agency_id" class="form-control"></select>
 																</div>
 																<div class="form-group">
-																	<label for="targetFareid">transfer_duration</label>
+																	<label for="transfer_duration">transfer_duration</label>
 																	<input id='transfer_duration' type="number" style="width:150px;" class="form-control">
 																</div>
 

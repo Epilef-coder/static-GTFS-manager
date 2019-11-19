@@ -146,6 +146,23 @@ $("#new_stop_lat").on('paste', function(e) {
 	}	
 });
 
+// Custom validator to check the stop_id validation
+window.Parsley.addValidator('validatestopid', {
+	validateString: function(value) {
+		let data = table.getData();
+		stop_id_list = data.map(a => a.stop_id);
+		if (stop_id_list.includes(value)) {
+			return false;
+		}
+		else {
+			return true;
+		}	  	
+	},
+	messages: {
+	  en: 'This stop_id already exists. Chose a new one!'
+	}
+  });
+
 
 // #################################
 // . load stops
@@ -305,7 +322,7 @@ $("#savetable").on("click", function () {
 });
 
 $("#AddStopButton").on("click", function () {
-	var $form = $('#Form-AddAgency');
+	var $form = $('#Form-AddStop');
 	$form.parsley({
 		errorClass: 'has-danger',
 		successClass: 'has-success',
